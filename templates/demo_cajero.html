@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FRESHMART — Demo Cajeros</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:      #1a1a2e;
+  --surface: #16213e;
+  --panel:   #0d0d1a;
+  --border:  #0f3460;
+  --accent:  #e94560;
+  --accent2: #c73652;
+  --blue:    #4fc3f7;
+  --green:   #43d882;
+  --orange:  #f5a623;
+  --text:    #e0e0e0;
+  --muted:   #a0a0b0;
+  --dim:     #5a6a7a;
+  --faint:   #3a3a5c;
+}
+
+body {
+  font-family: 'Courier New', monospace;
+  background: var(--bg);
+  color: var(--text);
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── TOP BAR ── */
+#top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  background: var(--surface);
+  border-bottom: 2px solid var(--border);
+  flex-shrink: 0;
+}
+#top-bar h1 { font-size: 15px; color: var(--accent); letter-spacing: 2px; font-weight: 700; }
+#top-clock  { font-size: 13px; color: var(--muted); }
+#top-role   { font-size: 12px; color: var(--blue); }
+
+/* ── NAV TABS ── */
+#tabs {
+  display: flex;
+  gap: 0;
+  background: var(--panel);
+  border-bottom: 2px solid var(--border);
+  flex-shrink: 0;
+}
+.tab {
+  padding: 10px 22px;
+  font-size: 12px;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 1px;
+  color: var(--muted);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: color .15s, border-color .15s;
+}
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--blue); border-bottom-color: var(--blue); }
+
+/* ── MAIN ── */
+#main {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  overflow: hidden;
+}
+
+/* ── LEFT — lista de cajeros ── */
+#left {
+  display: flex;
+  flex-direction: column;
+  border-right: 2px solid var(--border);
+  overflow: hidden;
+}
+#left-toolbar {
+  display: flex;
+  gap: 8px;
+  padding: 12px 16px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+#search-cajero {
+  flex: 1;
+  padding: 8px 12px;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  color: var(--blue);
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  outline: none;
+}
+#search-cajero:focus { border-color: var(--accent); }
+#search-cajero::placeholder { color: var(--faint); }
+#btn-nuevo {
+  padding: 8px 16px;
+  background: var(--accent);
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background .15s;
+}
+#btn-nuevo:hover { background: var(--accent2); }
+
+#cajero-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px 12px;
+}
+#cajero-list::-webkit-scrollbar { width: 4px; }
+#cajero-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+.cajero-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all .15s;
+  margin-bottom: 4px;
+}
+.cajero-row:hover { background: var(--surface); border-color: var(--border); }
+.cajero-row.selected { background: #16213e; border-color: var(--blue); }
+
+.avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.avatar.admin    { background: #1a1540; color: #b39ddb; border: 1.5px solid #7c4dff44; }
+.avatar.supervisor { background: #1a2a10; color: #a5d6a7; border: 1.5px solid #43d88244; }
+.avatar.cajero   { background: #0d1f30; color: var(--blue); border: 1.5px solid #4fc3f744; }
+
+.cajero-info { flex: 1; min-width: 0; }
+.cajero-name { font-size: 13px; color: var(--text); font-weight: 700; }
+.cajero-user { font-size: 11px; color: var(--muted); margin-top: 1px; }
+.cajero-meta { text-align: right; font-size: 11px; color: var(--dim); }
+
+.badge-rol {
+  display: inline-block;
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-weight: 700;
+  letter-spacing: .5px;
+}
+.badge-admin    { background: #1a1540; color: #b39ddb; border: 1px solid #7c4dff44; }
+.badge-supervisor { background: #1a2a10; color: var(--green); border: 1px solid #43d88244; }
+.badge-cajero   { background: #0d1f30; color: var(--blue); border: 1px solid #4fc3f744; }
+
+.status-dot {
+  width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+}
+.dot-activo   { background: var(--green); }
+.dot-inactivo { background: var(--dim); }
+.dot-turno    { background: var(--orange); }
+
+/* ── RIGHT — panel detalle / formulario ── */
+#right {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  background: var(--panel);
+}
+#right::-webkit-scrollbar { width: 4px; }
+#right::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+/* ── ESTADO VACÍO ── */
+#panel-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--faint);
+  gap: 10px;
+}
+#panel-empty .icon { font-size: 36px; opacity: .4; }
+#panel-empty p { font-size: 12px; letter-spacing: 1px; }
+
+/* ── FORMULARIO NUEVO / EDITAR ── */
+#panel-form {
+  display: none;
+  flex-direction: column;
+  padding: 20px;
+  gap: 18px;
+}
+#panel-form.visible { display: flex; }
+
+.form-title {
+  font-size: 13px;
+  color: var(--accent);
+  letter-spacing: 2px;
+  font-weight: 700;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field label { font-size: 11px; color: var(--muted); letter-spacing: 1px; }
+.field input, .field select {
+  padding: 9px 12px;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  outline: none;
+  transition: border-color .15s;
+}
+.field input:focus, .field select:focus { border-color: var(--accent); }
+.field input::placeholder { color: var(--faint); }
+.field select option { background: var(--surface); }
+
+/* PIN visual */
+.pin-wrap { display: flex; flex-direction: column; gap: 10px; }
+.pin-dots {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  padding: 14px;
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  transition: border-color .15s;
+}
+.pin-dots.active { border-color: var(--accent); }
+.pin-dot {
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: var(--faint);
+  transition: background .15s, transform .1s;
+}
+.pin-dot.filled { background: var(--accent); transform: scale(1.15); }
+
+.keypad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.key {
+  padding: 13px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-family: 'Courier New', monospace;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+  transition: background .1s, border-color .1s, transform .08s;
+  user-select: none;
+}
+.key:hover  { background: #1a2a4a; border-color: var(--blue); }
+.key:active { transform: scale(.95); background: var(--border); }
+.key.del    { font-size: 13px; color: var(--muted); }
+.key.clear  { font-size: 11px; color: var(--muted); letter-spacing: 1px; }
+
+.btn-row { display: flex; gap: 8px; margin-top: 4px; }
+.btn-primary {
+  flex: 1;
+  padding: 11px;
+  background: var(--accent);
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: background .15s;
+}
+.btn-primary:hover { background: var(--accent2); }
+.btn-primary:disabled { opacity: .4; cursor: default; }
+.btn-secondary {
+  padding: 11px 18px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--muted);
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  cursor: pointer;
+  transition: border-color .15s, color .15s;
+}
+.btn-secondary:hover { border-color: var(--muted); color: var(--text); }
+
+/* ── PANEL DETALLE (ver cajero seleccionado) ── */
+#panel-detalle {
+  display: none;
+  flex-direction: column;
+  gap: 0;
+}
+#panel-detalle.visible { display: flex; }
+
+.detalle-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 20px;
+  border-bottom: 1px solid var(--border);
+}
+.avatar-lg {
+  width: 56px; height: 56px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; font-weight: 700; flex-shrink: 0;
+}
+.detalle-nombre { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+.detalle-usuario { font-size: 12px; color: var(--muted); }
+
+.detalle-section {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.detalle-section-title {
+  font-size: 10px;
+  color: var(--dim);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.detalle-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 0;
+  font-size: 12px;
+}
+.detalle-row .dk { color: var(--muted); }
+.detalle-row .dv { color: var(--text); font-weight: 700; }
+
+.pin-preview {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.pin-mask {
+  width: 11px; height: 11px; border-radius: 50%;
+  background: var(--faint); border: 1px solid var(--dim);
+}
+
+.acciones { display: flex; flex-direction: column; gap: 8px; padding: 16px 20px; }
+.btn-accion {
+  padding: 10px 14px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--muted);
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  letter-spacing: .5px;
+  cursor: pointer;
+  text-align: left;
+  transition: all .15s;
+  display: flex; align-items: center; gap: 8px;
+}
+.btn-accion:hover { border-color: var(--blue); color: var(--blue); }
+.btn-accion.danger:hover { border-color: var(--accent); color: var(--accent); }
+.btn-accion .ico { font-size: 14px; }
+
+/* ── VISTA DEMO: LOGIN DE CAJA ── */
+#view-login { display: none; flex: 1; flex-direction: column; align-items: center; justify-content: center; gap: 24px; padding: 20px; }
+#view-login.visible { display: flex; }
+
+.login-title { font-size: 11px; color: var(--muted); letter-spacing: 2px; text-align: center; }
+.login-subtitle { font-size: 19px; color: var(--text); font-weight: 700; text-align: center; margin-top: -14px; }
+
+.cajero-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 12px;
+  width: 100%;
+  max-width: 600px;
+}
+.cajero-btn {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  padding: 16px 10px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all .15s;
+  color: var(--text);
+  font-family: 'Courier New', monospace;
+}
+.cajero-btn:hover { border-color: var(--blue); background: #1a2a4a; transform: translateY(-2px); }
+.cajero-btn.seleccionado { border-color: var(--accent); background: #2a1020; }
+.cajero-btn .cb-avatar {
+  width: 44px; height: 44px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; font-weight: 700;
+}
+.cajero-btn .cb-name { font-size: 12px; text-align: center; line-height: 1.3; }
+.cajero-btn .cb-rol  { font-size: 10px; color: var(--muted); }
+
+/* PIN overlay login */
+#pin-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.75);
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+#pin-overlay.visible { display: flex; }
+
+.pin-modal {
+  background: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 16px;
+  padding: 28px;
+  width: 280px;
+  display: flex; flex-direction: column; align-items: center; gap: 18px;
+}
+.pin-modal-title { font-size: 11px; color: var(--muted); letter-spacing: 2px; }
+.pin-modal-user  { font-size: 17px; font-weight: 700; color: var(--blue); }
+
+.pin-modal-dots {
+  display: flex; gap: 14px;
+}
+.pin-modal-dot {
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--faint); border: 1.5px solid var(--dim);
+  transition: background .12s, transform .1s;
+}
+.pin-modal-dot.filled { background: var(--accent); border-color: var(--accent); transform: scale(1.1); }
+
+.modal-keypad { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; width: 100%; }
+.modal-key {
+  padding: 14px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-family: 'Courier New', monospace;
+  font-size: 17px;
+  font-weight: 700;
+  cursor: pointer; text-align: center;
+  transition: background .1s, transform .08s;
+  user-select: none;
+}
+.modal-key:hover  { background: #1a2a4a; border-color: var(--blue); }
+.modal-key:active { transform: scale(.95); background: var(--border); }
+.modal-key.del    { font-size: 13px; color: var(--muted); }
+.pin-error { font-size: 11px; color: var(--accent); letter-spacing: 1px; opacity: 0; transition: opacity .2s; }
+.pin-error.show { opacity: 1; }
+#modal-cancel {
+  font-size: 11px; color: var(--dim); background: none; border: none;
+  cursor: pointer; font-family: 'Courier New', monospace; letter-spacing: 1px;
+}
+#modal-cancel:hover { color: var(--muted); }
+
+/* Toast */
+#toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  background: var(--surface); border: 1px solid var(--green);
+  color: var(--green); padding: 9px 20px; border-radius: 8px;
+  font-size: 12px; letter-spacing: .5px; display: none; z-index: 200;
+  white-space: nowrap;
+}
+#toast.error { border-color: var(--accent); color: var(--accent); }
+
+/* ── ANIMACIÓN ENTRADA ── */
+@keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+.cajero-row  { animation: fadeIn .2s ease both; }
+.cajero-btn  { animation: fadeIn .2s ease both; }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div id="top-bar">
+  <h1>FRESHMART</h1>
+  <div id="top-clock"></div>
+  <div id="top-role">⚙ ADMINISTRADOR</div>
+</div>
+
+<!-- TABS -->
+<div id="tabs">
+  <button class="tab active" onclick="setView('admin')" id="tab-admin">GESTIÓN DE CAJEROS</button>
+  <button class="tab" onclick="setView('login')" id="tab-login">▶ DEMO: INICIO DE TURNO</button>
+</div>
+
+<!-- VISTA ADMIN -->
+<div id="main">
+
+  <!-- LISTA -->
+  <div id="left">
+    <div id="left-toolbar">
+      <input id="search-cajero" type="text" placeholder="Buscar por nombre o usuario..." oninput="filtrarCajeros(this.value)">
+      <button id="btn-nuevo" onclick="mostrarFormNuevo()">+ NUEVO</button>
+    </div>
+    <div id="cajero-list"></div>
+  </div>
+
+  <!-- DERECHA -->
+  <div id="right">
+
+    <!-- Vacío -->
+    <div id="panel-empty">
+      <div class="icon">👤</div>
+      <p>SELECCIONA UN CAJERO</p>
+      <p style="font-size:11px;margin-top:-6px;color:var(--faint)">O CREA UNO NUEVO</p>
+    </div>
+
+    <!-- Formulario -->
+    <div id="panel-form">
+      <div class="form-title" id="form-title">NUEVO CAJERO</div>
+
+      <div class="field">
+        <label>NOMBRE COMPLETO</label>
+        <input id="f-nombre" type="text" placeholder="Ej: Juan Pérez">
+      </div>
+      <div class="field">
+        <label>USUARIO (generado automático)</label>
+        <input id="f-usuario" type="text" placeholder="jperez" readonly style="color:var(--muted);cursor:default;">
+      </div>
+      <div class="field">
+        <label>ROL</label>
+        <select id="f-rol">
+          <option value="cajero">Cajero</option>
+          <option value="supervisor">Supervisor</option>
+          <option value="admin">Administrador</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>PIN DE ACCESO (4 DÍGITOS)</label>
+        <div class="pin-wrap">
+          <div class="pin-dots" id="form-pin-dots">
+            <div class="pin-dot" id="d0"></div>
+            <div class="pin-dot" id="d1"></div>
+            <div class="pin-dot" id="d2"></div>
+            <div class="pin-dot" id="d3"></div>
+          </div>
+          <div class="keypad">
+            <button class="key" onclick="pinKey('1')">1</button>
+            <button class="key" onclick="pinKey('2')">2</button>
+            <button class="key" onclick="pinKey('3')">3</button>
+            <button class="key" onclick="pinKey('4')">4</button>
+            <button class="key" onclick="pinKey('5')">5</button>
+            <button class="key" onclick="pinKey('6')">6</button>
+            <button class="key" onclick="pinKey('7')">7</button>
+            <button class="key" onclick="pinKey('8')">8</button>
+            <button class="key" onclick="pinKey('9')">9</button>
+            <button class="key clear" onclick="pinClear()">LIMPIAR</button>
+            <button class="key" onclick="pinKey('0')">0</button>
+            <button class="key del" onclick="pinDel()">⌫</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn-secondary" onclick="cancelarForm()">CANCELAR</button>
+        <button class="btn-primary" id="btn-guardar" onclick="guardarCajero()" disabled>GUARDAR</button>
+      </div>
+    </div>
+
+    <!-- Detalle -->
+    <div id="panel-detalle">
+      <div class="detalle-header">
+        <div class="avatar-lg" id="d-avatar-lg"></div>
+        <div>
+          <div class="detalle-nombre" id="d-nombre"></div>
+          <div class="detalle-usuario" id="d-usuario-badge"></div>
+        </div>
+      </div>
+      <div class="detalle-section">
+        <div class="detalle-section-title">INFORMACIÓN</div>
+        <div class="detalle-row"><span class="dk">Usuario</span><span class="dv" id="d-user"></span></div>
+        <div class="detalle-row"><span class="dk">Rol</span><span class="dv" id="d-rol"></span></div>
+        <div class="detalle-row"><span class="dk">Estado</span><span class="dv" id="d-estado"></span></div>
+        <div class="detalle-row">
+          <span class="dk">PIN</span>
+          <span class="dv">
+            <div class="pin-preview" id="d-pin-prev">
+              <div class="pin-mask"></div><div class="pin-mask"></div><div class="pin-mask"></div><div class="pin-mask"></div>
+            </div>
+          </span>
+        </div>
+        <div class="detalle-row"><span class="dk">Creado</span><span class="dv" id="d-fecha"></span></div>
+      </div>
+      <div class="acciones">
+        <div class="detalle-section-title">ACCIONES</div>
+        <button class="btn-accion" onclick="editarCajero()"><span class="ico">✏️</span> Editar datos / cambiar PIN</button>
+        <button class="btn-accion" onclick="toggleEstado()"><span class="ico" id="ico-toggle">🔒</span> <span id="lbl-toggle">Desactivar cajero</span></button>
+        <button class="btn-accion danger" onclick="eliminarCajero()"><span class="ico">🗑</span> Eliminar cajero</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- VISTA LOGIN DEMO -->
+<div id="view-login">
+  <div class="login-title">FRESHMART — PUNTO DE VENTA</div>
+  <div class="login-subtitle">¿Quién inicia turno hoy?</div>
+  <div class="cajero-grid" id="login-grid"></div>
+</div>
+
+<!-- OVERLAY PIN LOGIN -->
+<div id="pin-overlay">
+  <div class="pin-modal">
+    <div class="pin-modal-title">INGRESA TU PIN</div>
+    <div class="pin-modal-user" id="pm-user"></div>
+    <div class="pin-modal-dots">
+      <div class="pin-modal-dot" id="md0"></div>
+      <div class="pin-modal-dot" id="md1"></div>
+      <div class="pin-modal-dot" id="md2"></div>
+      <div class="pin-modal-dot" id="md3"></div>
+    </div>
+    <div class="modal-keypad">
+      <button class="modal-key" onclick="mKey('1')">1</button>
+      <button class="modal-key" onclick="mKey('2')">2</button>
+      <button class="modal-key" onclick="mKey('3')">3</button>
+      <button class="modal-key" onclick="mKey('4')">4</button>
+      <button class="modal-key" onclick="mKey('5')">5</button>
+      <button class="modal-key" onclick="mKey('6')">6</button>
+      <button class="modal-key" onclick="mKey('7')">7</button>
+      <button class="modal-key" onclick="mKey('8')">8</button>
+      <button class="modal-key" onclick="mKey('9')">9</button>
+      <button class="modal-key del" onclick="mDel()">⌫</button>
+      <button class="modal-key" onclick="mKey('0')">0</button>
+      <button class="modal-key del" onclick="mClear()">✕</button>
+    </div>
+    <div class="pin-error" id="pin-error">PIN INCORRECTO</div>
+    <button id="modal-cancel" onclick="cerrarPinModal()">CANCELAR</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+/* ── DATOS ── */
+let cajeros = [
+  { id: 1, nombre: 'Carlos Mendoza',   usuario: 'cmendoza',  rol: 'admin',      pin: '1234', activo: true,  creado: '01/04/2026' },
+  { id: 2, nombre: 'Valeria Soto',     usuario: 'vsoto',     rol: 'supervisor', pin: '2580', activo: true,  creado: '05/04/2026' },
+  { id: 3, nombre: 'Rodrigo Fuentes',  usuario: 'rfuentes',  rol: 'cajero',     pin: '7391', activo: true,  creado: '10/04/2026' },
+  { id: 4, nombre: 'Pamela Torres',    usuario: 'ptorres',   rol: 'cajero',     pin: '4567', activo: true,  creado: '12/04/2026' },
+  { id: 5, nombre: 'Miguel Ríos',      usuario: 'mrios',     rol: 'cajero',     pin: '8823', activo: false, creado: '18/04/2026' },
+];
+let nextId = 6;
+let selectedId = null;
+let formPin = '';
+let editingId = null;
+let loginPin = '';
+let loginTarget = null;
+
+/* ── UTILIDADES ── */
+function initials(nombre) {
+  return nombre.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
+}
+function avatarClass(rol) {
+  return rol === 'admin' ? 'admin' : rol === 'supervisor' ? 'supervisor' : 'cajero';
+}
+function badgeClass(rol) {
+  return rol === 'admin' ? 'badge-admin' : rol === 'supervisor' ? 'badge-supervisor' : 'badge-cajero';
+}
+function rolLabel(rol) {
+  return rol === 'admin' ? 'ADMIN' : rol === 'supervisor' ? 'SUPERVISOR' : 'CAJERO';
+}
+function generarUsuario(nombre) {
+  const p = nombre.trim().split(' ');
+  if (p.length < 2) return nombre.toLowerCase().replace(/\s/g,'');
+  return (p[0][0] + p[1]).toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+function showToast(msg, err=false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = err ? 'error' : '';
+  t.style.display = 'block';
+  clearTimeout(t._t);
+  t._t = setTimeout(()=>t.style.display='none', 2200);
+}
+
+/* ── RENDER LISTA ── */
+function renderLista(filtro='') {
+  const el = document.getElementById('cajero-list');
+  const fil = cajeros.filter(c => {
+    const q = filtro.toLowerCase();
+    return !q || c.nombre.toLowerCase().includes(q) || c.usuario.includes(q);
+  });
+  el.innerHTML = fil.length ? fil.map((c,i) => `
+    <div class="cajero-row${selectedId===c.id?' selected':''}" onclick="seleccionar(${c.id})" style="animation-delay:${i*0.04}s">
+      <div class="status-dot ${c.activo ? (estaEnTurno(c.id)?'dot-turno':'dot-activo') : 'dot-inactivo'}"></div>
+      <div class="avatar ${avatarClass(c.rol)}">${initials(c.nombre)}</div>
+      <div class="cajero-info">
+        <div class="cajero-name">${c.nombre}</div>
+        <div class="cajero-user">@${c.usuario}</div>
+      </div>
+      <div class="cajero-meta">
+        <div><span class="badge-rol ${badgeClass(c.rol)}">${rolLabel(c.rol)}</span></div>
+        <div style="margin-top:4px">${c.activo ? (estaEnTurno(c.id)?'EN TURNO':'ACTIVO') : 'INACTIVO'}</div>
+      </div>
+    </div>`).join('')
+  : '<p style="font-size:12px;color:var(--faint);text-align:center;margin-top:40px;">Sin resultados</p>';
+}
+
+function estaEnTurno(id) { return id === 3 || id === 4; }
+function filtrarCajeros(v) { renderLista(v); }
+
+/* ── SELECCIONAR ── */
+function seleccionar(id) {
+  selectedId = id;
+  editingId = null;
+  const c = cajeros.find(x=>x.id===id);
+  ocultarTodo();
+  document.getElementById('panel-detalle').classList.add('visible');
+
+  const ac = avatarClass(c.rol);
+  const avEl = document.getElementById('d-avatar-lg');
+  avEl.textContent = initials(c.nombre);
+  avEl.className = 'avatar-lg avatar ' + ac;
+
+  document.getElementById('d-nombre').textContent = c.nombre;
+  document.getElementById('d-usuario-badge').innerHTML = `<span class="badge-rol ${badgeClass(c.rol)}">${rolLabel(c.rol)}</span>`;
+  document.getElementById('d-user').textContent = '@' + c.usuario;
+  document.getElementById('d-rol').textContent = rolLabel(c.rol);
+  document.getElementById('d-estado').innerHTML = c.activo
+    ? `<span style="color:var(--green)">● ACTIVO</span>`
+    : `<span style="color:var(--dim)">● INACTIVO</span>`;
+  document.getElementById('d-fecha').textContent = c.creado;
+  document.getElementById('ico-toggle').textContent = c.activo ? '🔒' : '🔓';
+  document.getElementById('lbl-toggle').textContent = c.activo ? 'Desactivar cajero' : 'Activar cajero';
+  renderLista(document.getElementById('search-cajero').value);
+}
+
+/* ── FORMULARIO NUEVO ── */
+function mostrarFormNuevo() {
+  selectedId = null; editingId = null; formPin = '';
+  ocultarTodo();
+  document.getElementById('panel-form').classList.add('visible');
+  document.getElementById('form-title').textContent = 'NUEVO CAJERO';
+  document.getElementById('f-nombre').value = '';
+  document.getElementById('f-usuario').value = '';
+  document.getElementById('f-rol').value = 'cajero';
+  actualizarPinDots();
+  document.getElementById('btn-guardar').disabled = true;
+  document.getElementById('f-nombre').focus();
+  renderLista();
+}
+
+document.getElementById('f-nombre').addEventListener('input', function() {
+  document.getElementById('f-usuario').value = generarUsuario(this.value);
+  validarForm();
+});
+
+function validarForm() {
+  const nombre = document.getElementById('f-nombre').value.trim();
+  document.getElementById('btn-guardar').disabled = !(nombre.length >= 2 && formPin.length === 4);
+}
+
+/* ── PIN TECLADO (FORM) ── */
+function pinKey(d) {
+  if (formPin.length >= 4) return;
+  formPin += d;
+  actualizarPinDots();
+  validarForm();
+}
+function pinDel() {
+  formPin = formPin.slice(0,-1);
+  actualizarPinDots();
+  validarForm();
+}
+function pinClear() {
+  formPin = '';
+  actualizarPinDots();
+  validarForm();
+}
+function actualizarPinDots() {
+  const active = formPin.length > 0;
+  document.getElementById('form-pin-dots').classList.toggle('active', active);
+  for(let i=0;i<4;i++) {
+    document.getElementById('d'+i).classList.toggle('filled', i < formPin.length);
+  }
+}
+
+/* ── GUARDAR ── */
+function guardarCajero() {
+  const nombre  = document.getElementById('f-nombre').value.trim();
+  const usuario = document.getElementById('f-usuario').value.trim();
+  const rol     = document.getElementById('f-rol').value;
+
+  if (editingId) {
+    const c = cajeros.find(x=>x.id===editingId);
+    c.nombre = nombre; c.usuario = usuario; c.rol = rol; c.pin = formPin;
+    showToast(`✓ ${nombre} actualizado`);
+    seleccionar(editingId);
+    editingId = null;
+  } else {
+    const nuevo = {
+      id: nextId++,
+      nombre, usuario, rol, pin: formPin,
+      activo: true,
+      creado: new Date().toLocaleDateString('es-CL')
+    };
+    cajeros.push(nuevo);
+    showToast(`✓ Cajero ${nombre} creado con éxito`);
+    seleccionar(nuevo.id);
+  }
+  formPin = '';
+  renderLoginGrid();
+}
+
+function cancelarForm() {
+  editingId = null; formPin = '';
+  if (selectedId) seleccionar(selectedId);
+  else { ocultarTodo(); document.getElementById('panel-empty').style.display=''; renderLista(); }
+}
+
+/* ── EDITAR ── */
+function editarCajero() {
+  const c = cajeros.find(x=>x.id===selectedId);
+  editingId = selectedId; formPin = c.pin;
+  ocultarTodo();
+  document.getElementById('panel-form').classList.add('visible');
+  document.getElementById('form-title').textContent = 'EDITAR CAJERO';
+  document.getElementById('f-nombre').value = c.nombre;
+  document.getElementById('f-usuario').value = c.usuario;
+  document.getElementById('f-rol').value = c.rol;
+  actualizarPinDots();
+  validarForm();
+}
+
+/* ── TOGGLE ESTADO ── */
+function toggleEstado() {
+  const c = cajeros.find(x=>x.id===selectedId);
+  c.activo = !c.activo;
+  showToast(c.activo ? `✓ ${c.nombre} activado` : `⚠ ${c.nombre} desactivado`);
+  seleccionar(selectedId);
+  renderLoginGrid();
+}
+
+/* ── ELIMINAR ── */
+function eliminarCajero() {
+  const c = cajeros.find(x=>x.id===selectedId);
+  if (!confirm(`¿Eliminar a ${c.nombre}? Esta acción no se puede deshacer.`)) return;
+  cajeros = cajeros.filter(x=>x.id!==selectedId);
+  selectedId = null;
+  ocultarTodo();
+  document.getElementById('panel-empty').style.display='';
+  renderLista();
+  renderLoginGrid();
+  showToast(`Cajero eliminado`);
+}
+
+function ocultarTodo() {
+  document.getElementById('panel-empty').style.display = 'none';
+  document.getElementById('panel-form').classList.remove('visible');
+  document.getElementById('panel-detalle').classList.remove('visible');
+}
+
+/* ── VISTA LOGIN ── */
+function renderLoginGrid() {
+  const activos = cajeros.filter(c=>c.activo);
+  document.getElementById('login-grid').innerHTML = activos.map((c,i)=>`
+    <button class="cajero-btn" onclick="abrirPinModal(${c.id})" style="animation-delay:${i*0.06}s">
+      <div class="cb-avatar avatar ${avatarClass(c.rol)}">${initials(c.nombre)}</div>
+      <div class="cb-name">${c.nombre.split(' ')[0]}<br>${c.nombre.split(' ').slice(1).join(' ')}</div>
+      <div class="cb-rol">${rolLabel(c.rol)}</div>
+    </button>`).join('');
+}
+
+/* ── PIN MODAL (login) ── */
+function abrirPinModal(id) {
+  loginTarget = id; loginPin = '';
+  const c = cajeros.find(x=>x.id===id);
+  document.getElementById('pm-user').textContent = c.nombre;
+  actualizarModalDots();
+  document.getElementById('pin-error').classList.remove('show');
+  document.getElementById('pin-overlay').classList.add('visible');
+}
+function cerrarPinModal() {
+  loginPin = ''; loginTarget = null;
+  document.getElementById('pin-overlay').classList.remove('visible');
+}
+function actualizarModalDots() {
+  for(let i=0;i<4;i++) {
+    document.getElementById('md'+i).classList.toggle('filled', i < loginPin.length);
+  }
+}
+function mKey(d) {
+  if (loginPin.length >= 4) return;
+  loginPin += d;
+  actualizarModalDots();
+  if (loginPin.length === 4) verificarPin();
+}
+function mDel() { loginPin = loginPin.slice(0,-1); actualizarModalDots(); }
+function mClear() { loginPin = ''; actualizarModalDots(); }
+function verificarPin() {
+  const c = cajeros.find(x=>x.id===loginTarget);
+  if (loginPin === c.pin) {
+    cerrarPinModal();
+    showToast(`✓ Bienvenido/a, ${c.nombre.split(' ')[0]}! Turno iniciado.`);
+  } else {
+    document.getElementById('pin-error').classList.add('show');
+    loginPin = '';
+    setTimeout(()=>actualizarModalDots(), 80);
+    setTimeout(()=>document.getElementById('pin-error').classList.remove('show'), 1800);
+  }
+}
+
+/* ── CAMBIO DE VISTA ── */
+function setView(v) {
+  const isAdmin = v === 'admin';
+  document.getElementById('main').style.display = isAdmin ? 'grid' : 'none';
+  const vl = document.getElementById('view-login');
+  vl.style.display = isAdmin ? 'none' : '';
+  vl.classList.toggle('visible', !isAdmin);
+  document.getElementById('tab-admin').classList.toggle('active', isAdmin);
+  document.getElementById('tab-login').classList.toggle('active', !isAdmin);
+  if (!isAdmin) renderLoginGrid();
+}
+
+/* ── RELOJ ── */
+function updateClock() {
+  document.getElementById('top-clock').textContent = new Date().toLocaleTimeString('es-CL');
+}
+updateClock(); setInterval(updateClock, 1000);
+
+/* ── INIT ── */
+renderLista();
+document.getElementById('panel-empty').style.display = '';
+</script>
+</body>
+</html>

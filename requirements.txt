@@ -1,3 +1,5 @@
 fastapi[standard]
-jinja2
-sqlmodel
+uvicorn[standard]
+PyJWT
+pydantic
+python-multipart
