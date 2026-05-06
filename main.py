@@ -23,7 +23,7 @@ SECRET_KEY = os.getenv(
     "FRESHMART_SECRET", "freshmart-secret-key-2026-!change-in-prod")
 ALGORITHM = "HS256"
 TOKEN_EXP = 60 * 12  # 12 horas en minutos
-DB_PATH = os.path.join(os.path.dirname(__file__), "freshmart.db")
+DB_PATH = "database.db"
 
 app = FastAPI(title="FreshMart ERP API", version="1.0.0")
 security = HTTPBearer()
