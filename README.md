@@ -1,323 +1,187 @@
-# Prometheus Labs — ERP Inteligente para Minimarkets
+# FreshMart ERP API (Open Source)
+
+Backend para gestion de minimarket construido con FastAPI + SQLite, con autenticacion JWT, control de inventario, ventas, proveedores, ordenes y turnos.
+
+## Estado del proyecto
+
+- Estado actual: funcional para uso local y pruebas
+- Tipo de proyecto: API backend con vista HTML inicial (`/`)
+- Base de datos: SQLite (`database.db`)
+- Licencia: pendiente de definicion (se recomienda MIT)
+
+## Stack tecnico
+
+- Python 3.10+
+- FastAPI
+- Uvicorn
+- SQLite3
+- PyJWT
+- Pydantic
 
-> Propuesta de Producto Mínimo Viable (PMV)
->
-> **Proyecto:** ERP para supermercado local
-> **Cliente objetivo:** Minimarket con productos chilenos e importados
-> **Estado:** Etapa de levantamiento de requerimientos
+Dependencias actuales en `requirements.txt`:
+
+- `fastapi[standard]`
+- `PyJWT`
+- `pydantic`
+- `python-multipart`
 
----
+## Estructura del proyecto
 
-# 1. Visión del proyecto
+```text
+local_first/
+|- main.py           # API principal (rutas, auth, logica de negocio)
+|- init_db.py        # crea tablas y carga datos de ejemplo
+|- requirements.txt
+|- templates/
+|  \- index.html     # vista inicial servida por FastAPI
+|- database.py       # archivo de prueba/conexion minima
+\- database.db       # se genera localmente (ignorado por git)
+```
 
-Desarrollar una plataforma de gestión diseñada específicamente para supermercados pequeños y medianos, permitiendo centralizar las operaciones diarias del negocio, reducir pérdidas, mejorar el control del inventario y aumentar la capacidad de toma de decisiones.
+## Arquitectura funcional
 
-Este sistema no busca ser un software genérico, sino una solución pensada para la realidad del comercio local.
+- **Autenticacion y autorizacion**
+  - Login con usuario/password
+  - Emision de JWT (HS256)
+  - Middleware de seguridad via `HTTPBearer`
+  - Roles: `admin`, `supervisor`, `cajero`
+- **Modulos de negocio**
+  - Usuarios
+  - Productos e inventario
+  - Proveedores
+  - Ordenes de compra
+  - Ventas y detalle de ventas
+  - Turnos
+  - Dashboard operativo
+- **Persistencia**
+  - Acceso a BD con `sqlite3` y contexto transaccional (`get_db`)
+  - Esquema definido e inicializado por `init_db.py`
 
-## Objetivos principales
+## Modelo de datos (resumen)
 
-* Tener control total del negocio en tiempo real
-* Reducir pérdidas por quiebres de stock
-* Mejorar la rotación de productos
-* Automatizar tareas repetitivas
-* Mejorar la comunicación con clientes frecuentes
-* Preparar el negocio para crecimiento futuro
+Tablas principales:
 
----
+- `usuarios`
+- `productos`
+- `proveedores`
+- `ordenes`
+- `ventas`
+- `detalle_ventas`
+- `turnos`
+- `reposiciones`
 
-# 2. Información que necesitamos del cliente para iniciar
+Notas:
 
-Antes de comenzar el desarrollo, necesitamos comprender cómo opera actualmente el negocio.
+- Integridad referencial activada con `PRAGMA foreign_keys = ON`.
+- `init_db.py` inserta datos de ejemplo solo si las tablas estan vacias.
 
-## Información general del negocio
+## API principal
 
-### Identidad del negocio
+Base URL local: `http://127.0.0.1:8000`
 
-* Nombre comercial
-* Dirección principal
-* Horarios de funcionamiento
-* Cantidad de sucursales (si aplica)
-* Cantidad de cajas activas
+Endpoints relevantes:
 
-### Operación diaria
+- `POST /api/auth/login`
+- `GET /api/auth/me`
+- `POST /api/auth/change-password`
+- `GET/POST/PATCH/DELETE /api/usuarios`
+- `GET/POST/PATCH/DELETE /api/productos`
+- `POST /api/productos/{pid}/restock`
+- `GET/POST/PATCH/DELETE /api/proveedores`
+- `GET/POST/PATCH/DELETE /api/ordenes`
+- `GET/POST /api/ventas`
+- `GET /api/ventas/{vid}/detalle`
+- `GET/POST/PATCH/DELETE /api/turnos`
+- `GET /api/dashboard`
+- `GET /api/health`
 
-* Número aproximado de ventas por día
-* Horarios con mayor flujo de clientes
-* Métodos de pago aceptados
-* Uso actual de software o procesos manuales
+Documentacion interactiva (Swagger):
 
-### Catálogo de productos
+- `http://127.0.0.1:8000/docs`
 
-Necesitamos conocer:
+## Instalacion y ejecucion local
 
-* Cantidad aproximada de productos
-* Categorías principales
-* Productos importados
-* Productos perecibles
-* Productos vendidos por unidad, peso o volumen
-* Productos con alta rotación
+1) Crear entorno virtual:
 
-### Proveedores
+```bash
+python -m venv .venv
+```
 
-* Lista de proveedores principales
-* Frecuencia de reposición
-* Proveedores nacionales e internacionales
+2) Activar entorno virtual:
 
-### Gestión de clientes
+- PowerShell:
 
-* ¿Existen clientes frecuentes?
-* ¿Se manejan descuentos?
-* ¿Se manejan pedidos por WhatsApp?
-* ¿Se realizan reservas de productos?
+```powershell
+.\.venv\Scripts\Activate.ps1
+```
 
----
+3) Instalar dependencias:
 
-# 3. PMV — Funcionalidades iniciales
+```bash
+pip install -r requirements.txt
+```
 
-## Módulo de ventas
+4) Inicializar base de datos:
 
-Permite registrar cada venta realizada en caja.
+```bash
+python init_db.py
+```
 
-### Incluye
+5) Ejecutar servidor:
 
-* Registro rápido de productos
-* Búsqueda por nombre o código
-* Gestión de carrito de compra
-* Aplicación de descuentos
-* Registro de método de pago
-* Cierre diario de caja
+```bash
+uvicorn main:app --reload --port 8000
+```
 
-### Valor para el negocio
+## Configuracion
 
-* Menos errores en caja
-* Mayor velocidad de atención
-* Historial completo de ventas
+Variables de entorno:
 
----
+- `FRESHMART_SECRET`: clave para firmar JWT.
 
-## Módulo de inventario
+Si no se define, el proyecto usa una clave por defecto en codigo. Para uso publico/open source, se recomienda configurar esta variable siempre en desarrollo y produccion.
 
-Control inteligente del stock del negocio.
+## Seguridad y hardening recomendado
 
-### Incluye
+Antes de publicar o desplegar:
 
-* Registro de entradas de mercadería
-* Registro automático de salidas por venta
-* Control de stock mínimo
-* Control de fechas de vencimiento
-* Identificación de productos con baja rotación
+- Cambiar la clave JWT por defecto usando `FRESHMART_SECRET`.
+- No usar credenciales de ejemplo en entornos reales.
+- Restringir CORS (`allow_origins`) en vez de `*`.
+- Agregar rate limiting y auditoria de eventos sensibles.
+- Evaluar migrar a PostgreSQL para produccion multiusuario.
 
-### Valor para el negocio
+## Limitaciones conocidas
 
-* Menos pérdidas
-* Mejor reposición
-* Mejor planificación de compras
+- Actualmente no hay carpeta `static/` incluida; si FastAPI falla al iniciar por este punto, crear directorio vacio `static`.
+- No hay suite de tests automatizados incluida en esta version.
+- El proyecto esta optimizado para ejecucion local/single-node.
 
----
+## Roadmap sugerido (open source)
 
-## Módulo de proveedores
+- [ ] Tests unitarios e integracion
+- [ ] Dockerfile + docker-compose
+- [ ] Migraciones de BD (Alembic)
+- [ ] CI (lint + test) con GitHub Actions
+- [ ] Versionado semantico y changelog
 
-Permite gestionar las compras del negocio.
+## Contribuciones
 
-### Incluye
+Se aceptan issues y pull requests.
 
-* Registro de proveedores
-* Historial de compras
-* Seguimiento de costos
-* Comparación de precios
+Flujo recomendado:
 
-### Valor para el negocio
+1. Fork del repositorio
+2. Crear rama feature/fix
+3. Commit con cambios atomicos
+4. Abrir Pull Request con descripcion tecnica y pasos de prueba
 
-* Mejor negociación
-* Control de márgenes
+## Licencia
 
----
+Este repositorio esta listo para publicarse como open source.  
+Define la licencia en este archivo y agrega un archivo `LICENSE` en la raiz.
 
-## Módulo de reportes gerenciales
+Ejemplo recomendado:
 
-Información clara para tomar decisiones.
+- MIT License
 
-### Indicadores iniciales
-
-* Ventas del día
-* Productos más vendidos
-* Productos menos vendidos
-* Productos próximos a agotarse
-* Categorías más rentables
-* Horarios de mayor venta
-
----
-
-# 4. Gestión de personal, roles y control operativo
-
-Uno de los puntos más sensibles en un negocio retail es poder delegar la operación con confianza cuando el dueño no está presente.
-
-El sistema incluirá herramientas para garantizar transparencia, trazabilidad y control de cada operación realizada por el personal.
-
-## Gestión de usuarios y permisos
-
-Cada colaborador tendrá acceso con credenciales individuales.
-
-### Roles iniciales
-
-#### Administrador (Dueño)
-
-Podrá:
-
-* Visualizar información completa del negocio
-* Configurar precios
-* Autorizar descuentos especiales
-* Aprobar anulaciones
-* Gestionar usuarios
-* Revisar utilidades y reportes estratégicos
-* Recibir alertas automáticas
-
-#### Cajero
-
-Podrá:
-
-* Registrar ventas
-* Consultar productos
-* Abrir y cerrar caja
-* Procesar pagos
-* Consultar historial de ventas propias
-
-#### Supervisor
-
-Podrá:
-
-* Autorizar devoluciones
-* Realizar ajustes de inventario con justificación
-* Resolver incidencias operativas
-* Supervisar cajas activas
-
----
-
-## Control de turnos y cajas
-
-Cada turno quedará registrado.
-
-### Incluye
-
-* Apertura de caja con monto inicial
-* Registro de responsable del turno
-* Cierre de caja
-* Conciliación entre ventas registradas y efectivo real
-* Detección de diferencias
-
-### Valor para el negocio
-
-* Mayor control del efectivo
-* Menor riesgo de pérdidas
-* Mayor transparencia operativa
-
----
-
-## Bitácora de auditoría
-
-Todas las acciones importantes quedarán registradas.
-
-### Incluye
-
-* Cambios de precios
-* Descuentos aplicados
-* Anulación de ventas
-* Ajustes de inventario
-* Eliminación o modificación de productos
-* Cambios de configuración
-
-### Valor para el negocio
-
-* Historial completo de decisiones
-* Mayor seguridad al delegar
-* Resolución rápida de incidencias
-
----
-
-## Alertas automáticas al dueño
-
-Además de la gestión comercial, el sistema enviará alertas operativas mediante WhatsApp cuando ocurran eventos relevantes.
-
-### Ejemplos de alertas
-
-* Diferencias de caja
-* Anulación de ventas
-* Descuentos fuera de parámetros
-* Caja sin cerrar
-* Ajustes manuales de inventario
-* Operaciones fuera del horario habitual
-
----
-
-# 5. Diferenciador estratégico
-
-# WhatsApp Business Automation
-
-Uno de los principales diferenciales del proyecto será la automatización inteligente mediante WhatsApp.
-
-## Alertas automáticas para el dueño
-
-El sistema podrá enviar notificaciones cuando:
-
-* Un producto esté próximo a agotarse
-* Un producto llegue a stock crítico
-* Existan productos próximos a vencer
-* Se alcance una meta diaria de ventas
-* La caja no haya sido cerrada
-* Existan ventas fuera de horario habitual
-
-## Comunicación con clientes frecuentes
-
-El sistema podrá enviar campañas como:
-
-* Promociones especiales
-* Productos recién llegados
-* Ofertas del fin de semana
-* Fechas especiales
-* Recordatorios de pedidos
-
-### Valor real
-
-No solo gestiona el negocio.
-
-También ayuda a vender más.
-
----
-
-# 6. Preguntas clave para el cliente
-
-Durante la reunión inicial necesitamos responder:
-
-* ¿Qué problemas quiere resolver primero?
-* ¿Dónde pierde más dinero actualmente?
-* ¿Qué tareas toman más tiempo?
-* ¿Qué información hoy no puede medir?
-* ¿Qué procesos aún se hacen manualmente?
-* ¿Qué desea controlar desde su celular?
-* ¿Quiere crecer a más sucursales?
-
----
-
-# 7. Alcance inicial del proyecto
-
-## Primera etapa
-
-Construcción del PMV funcional.
-
-Incluye:
-
-* Ventas
-* Inventario
-* Proveedores
-* Reportes
-* Notificaciones WhatsApp
-
-## Resultado esperado
-
-En la primera versión, el cliente podrá operar su negocio con información centralizada, recibir alertas automáticas y tomar mejores decisiones basadas en datos reales.
-
----
-
-# 8. Próximo paso
-
-Agendar reunión de descubrimiento con el cliente para validar procesos actuales, prioridades y oportunidades de automatización.
