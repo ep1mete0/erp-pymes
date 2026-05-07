@@ -2701,12 +2701,472 @@
     .fade-in {
       animation: fadeIn .25s ease both
     }
+
+    /* ══════════════════════════════════════════
+       TOUR GUIADO
+    ══════════════════════════════════════════ */
+    #tour-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 9000;
+      pointer-events: none
+    }
+
+    #tour-overlay.active {
+      display: block
+    }
+
+    /* Fondo oscuro con recorte */
+    #tour-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 9001;
+      pointer-events: all
+    }
+
+    /* Elemento resaltado */
+    .tour-highlight-box {
+      position: fixed;
+      z-index: 9002;
+      border-radius: 10px;
+      box-shadow: 0 0 0 4000px rgba(10, 20, 40, .72);
+      outline: 3px solid var(--primary);
+      outline-offset: 4px;
+      pointer-events: none;
+      transition: all .4s cubic-bezier(.4, 0, .2, 1)
+    }
+
+    /* Tooltip del tour */
+    #tour-tooltip {
+      position: fixed;
+      z-index: 9010;
+      width: 340px;
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 24px 48px rgba(0,0,0,.22), 0 8px 16px rgba(0,0,0,.12);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      pointer-events: all;
+      transition: all .35s cubic-bezier(.4, 0, .2, 1)
+    }
+
+    .tour-tip-header {
+      background: linear-gradient(135deg, var(--primary) 0%, #15803d 100%);
+      padding: 16px 20px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between
+    }
+
+    .tour-tip-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px
+    }
+
+    .tour-tip-icon {
+      width: 36px;
+      height: 36px;
+      background: rgba(255,255,255,.2);
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px
+    }
+
+    .tour-tip-title {
+      font-family: 'Nunito', sans-serif;
+      font-size: 15px;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.2
+    }
+
+    .tour-tip-subtitle {
+      font-size: 11px;
+      color: rgba(255,255,255,.75);
+      font-weight: 500;
+      margin-top: 1px
+    }
+
+    .tour-tip-close {
+      width: 28px;
+      height: 28px;
+      background: rgba(255,255,255,.15);
+      border: none;
+      border-radius: 7px;
+      color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      transition: background .15s;
+      flex-shrink: 0
+    }
+
+    .tour-tip-close:hover {
+      background: rgba(255,255,255,.28)
+    }
+
+    .tour-tip-body {
+      padding: 18px 20px
+    }
+
+    .tour-tip-desc {
+      font-size: 14px;
+      color: var(--text2);
+      line-height: 1.65
+    }
+
+    .tour-tip-desc strong {
+      color: var(--primary);
+      font-weight: 700
+    }
+
+    .tour-tip-footer {
+      padding: 12px 20px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-top: 1px solid var(--border)
+    }
+
+    .tour-progress {
+      display: flex;
+      gap: 5px;
+      flex: 1;
+      align-items: center
+    }
+
+    .tour-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--border2);
+      transition: all .25s
+    }
+
+    .tour-dot.done {
+      background: var(--primary-l);
+      transform: scale(.85)
+    }
+
+    .tour-dot.active {
+      background: var(--primary);
+      transform: scale(1.25)
+    }
+
+    .tour-btn {
+      padding: 8px 16px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      font-family: 'Inter', sans-serif;
+      transition: all .15s
+    }
+
+    .tour-btn-skip {
+      background: transparent;
+      color: var(--text3);
+      padding: 8px 10px
+    }
+
+    .tour-btn-skip:hover {
+      color: var(--red)
+    }
+
+    .tour-btn-next {
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 3px 10px rgba(22,163,74,.3);
+      margin-left: auto
+    }
+
+    .tour-btn-next:hover {
+      background: var(--primary-d);
+      transform: translateY(-1px);
+      box-shadow: 0 5px 14px rgba(22,163,74,.35)
+    }
+
+    .tour-btn-prev {
+      background: var(--bg);
+      color: var(--text2);
+      border: 1.5px solid var(--border)
+    }
+
+    .tour-btn-prev:hover {
+      border-color: var(--border2);
+      background: var(--border)
+    }
+
+    /* Flecha del tooltip */
+    #tour-arrow {
+      position: fixed;
+      z-index: 9011;
+      width: 14px;
+      height: 14px;
+      background: var(--white);
+      border: 1px solid var(--border);
+      transform: rotate(45deg);
+      pointer-events: none;
+      transition: all .35s cubic-bezier(.4, 0, .2, 1)
+    }
+
+    /* Animación de entrada del tooltip */
+    @keyframes tourPop {
+      from { opacity: 0; transform: scale(.88) translateY(6px) }
+      to   { opacity: 1; transform: scale(1) translateY(0) }
+    }
+
+    .tour-pop {
+      animation: tourPop .3s cubic-bezier(.4, 0, .2, 1) both
+    }
+
+    /* Pulso en el highlight */
+    @keyframes tourPulse {
+      0%, 100% { outline-color: var(--primary); outline-offset: 4px }
+      50%       { outline-color: #22c55e; outline-offset: 7px }
+    }
+
+    .tour-highlight-box {
+      animation: tourPulse 2s ease infinite
+    }
+
+    /* Botón flotante para reiniciar el tour */
+    #tour-fab {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 8000;
+      display: none;
+      align-items: center;
+      gap: 0;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 99px;
+      height: 48px;
+      padding: 0 20px 0 16px;
+      font-size: 13px;
+      font-weight: 700;
+      font-family: 'Nunito', sans-serif;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(22,163,74,.38), 0 2px 6px rgba(22,163,74,.2);
+      transition: all .2s;
+      overflow: hidden;
+      white-space: nowrap
+    }
+
+    #tour-fab.visible {
+      display: flex
+    }
+
+    #tour-fab:hover {
+      background: var(--primary-d);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 28px rgba(22,163,74,.42), 0 4px 8px rgba(22,163,74,.22);
+      padding-right: 22px
+    }
+
+    #tour-fab svg {
+      width: 20px;
+      height: 20px;
+      margin-right: 8px;
+      flex-shrink: 0
+    }
+
+    @keyframes fabBounce {
+      0%, 100% { transform: translateY(0) }
+      50% { transform: translateY(-4px) }
+    }
+
+    #tour-fab.bounce {
+      animation: fabBounce .6s ease 3
+    }
+
+    /* Pantalla de bienvenida del tour */
+    #tour-welcome {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 9100;
+      background: rgba(10,20,40,.78);
+      backdrop-filter: blur(6px);
+      align-items: center;
+      justify-content: center
+    }
+
+    #tour-welcome.show {
+      display: flex
+    }
+
+    .tw-card {
+      background: var(--white);
+      border-radius: var(--radius-xl);
+      padding: 40px 36px;
+      max-width: 440px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 32px 64px rgba(0,0,0,.25);
+      border: 1px solid var(--border)
+    }
+
+    .tw-emoji {
+      font-size: 52px;
+      margin-bottom: 12px;
+      display: block
+    }
+
+    .tw-title {
+      font-family: 'Nunito', sans-serif;
+      font-size: 26px;
+      font-weight: 900;
+      color: var(--text);
+      margin-bottom: 8px
+    }
+
+    .tw-title span {
+      color: var(--primary)
+    }
+
+    .tw-desc {
+      font-size: 15px;
+      color: var(--text3);
+      line-height: 1.65;
+      margin-bottom: 28px
+    }
+
+    .tw-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: center
+    }
+
+    .tw-btn-start {
+      padding: 13px 28px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: 15px;
+      font-weight: 700;
+      font-family: 'Nunito', sans-serif;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(22,163,74,.32);
+      transition: all .15s
+    }
+
+    .tw-btn-start:hover {
+      background: var(--primary-d);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px rgba(22,163,74,.38)
+    }
+
+    .tw-btn-skip {
+      padding: 13px 20px;
+      background: var(--bg);
+      color: var(--text3);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 15px;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: all .15s
+    }
+
+    .tw-btn-skip:hover {
+      color: var(--red);
+      border-color: var(--red-l)
+    }
+
+    .tw-steps-preview {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin-bottom: 24px
+    }
+
+    .tw-step-pill {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 11px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 99px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text3)
+    }
   </style>
 </head>
 
 <body>
 
-  <!-- ══════ LOGIN ══════ -->
+  <!-- ══════ TOUR GUIADO ══════ -->
+  <!-- Pantalla de bienvenida -->
+  <div id="tour-welcome">
+    <div class="tw-card fade-in">
+      <span class="tw-emoji">🎯</span>
+      <div class="tw-title">Bienvenido a <span>FreshMart</span></div>
+      <div class="tw-desc">Te mostraremos en menos de 2 minutos todo lo que necesitas saber para usar el sistema con confianza.</div>
+      <div class="tw-steps-preview">
+        <div class="tw-step-pill">📊 Dashboard</div>
+        <div class="tw-step-pill">🛒 Ventas</div>
+        <div class="tw-step-pill">📦 Inventario</div>
+        <div class="tw-step-pill">+3 más</div>
+      </div>
+      <div class="tw-actions">
+        <button class="tw-btn-skip" onclick="closeTourWelcome()">Ahora no</button>
+        <button class="tw-btn-start" onclick="beginTourSteps()">🚀 Comenzar recorrido</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Overlay del tour -->
+  <div id="tour-overlay">
+    <div id="tour-backdrop" onclick="handleBackdropClick()"></div>
+    <div class="tour-highlight-box" id="tour-hl"></div>
+    <div id="tour-arrow"></div>
+    <div id="tour-tooltip">
+      <div class="tour-tip-header">
+        <div class="tour-tip-badge">
+          <div class="tour-tip-icon" id="tip-icon">📊</div>
+          <div>
+            <div class="tour-tip-title" id="tip-title">Título</div>
+            <div class="tour-tip-subtitle" id="tip-step">Paso 1 de 7</div>
+          </div>
+        </div>
+        <button class="tour-tip-close" onclick="endTour()" title="Cerrar tour">✕</button>
+      </div>
+      <div class="tour-tip-body">
+        <div class="tour-tip-desc" id="tip-desc">Descripción</div>
+      </div>
+      <div class="tour-tip-footer">
+        <div class="tour-progress" id="tour-dots"></div>
+        <button class="tour-btn tour-btn-prev" id="tour-prev-btn" onclick="tourPrev()">← Anterior</button>
+        <button class="tour-btn tour-btn-next" id="tour-next-btn" onclick="tourNext()">Siguiente →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAB flotante para reiniciar -->
+  <button id="tour-fab" onclick="startTour()" title="Reiniciar visita guiada">
+    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="12" cy="12" r="10" stroke="white" stroke-width="1.8"/>
+      <path d="M12 8v4l3 3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M7 12a5 5 0 0 1 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M5.5 7L7 12l4.5-1.5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    Visita guiada
+  </button>
   <div id="login-screen">
     <div class="login-wrap fade-in">
       <div class="login-left">
@@ -2773,6 +3233,11 @@
           </div>
         </div>
         <button id="logout-btn" onclick="doLogout()">Salir</button>
+        <!-- Botón tour en top-bar -->
+        <button id="tour-topbar-btn" onclick="startTour()" title="Ver visita guiada" style="display:none;align-items:center;gap:6px;padding:7px 13px;background:var(--primary-l);color:var(--primary);border:1.5px solid var(--primary);border-radius:var(--radius-sm);font-size:12px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;transition:all .15s" onmouseover="this.style.background='var(--primary)';this.style.color='#fff'" onmouseout="this.style.background='var(--primary-l)';this.style.color='var(--primary)'">
+          <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:15px;height:15px;flex-shrink:0"><path d="M10 2C5.58172 2 2 5.58172 2 10C2 14.4183 5.58172 18 10 18C14.4183 18 18 14.4183 18 10C18 5.58172 14.4183 2 10 2Z" stroke="currentColor" stroke-width="1.8"/><path d="M10 9V14M10 6.5V7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          Visita guiada
+        </button>
       </div>
     </div>
 
@@ -3438,6 +3903,8 @@
       switchView('dashboard');
       updateClock();
       setInterval(updateClock, 1000);
+      // Mostrar botones de tour y lanzar bienvenida
+      showTourAfterLogin();
     }
 
     function doLogout() {
@@ -3450,6 +3917,11 @@
       document.getElementById('inp-user').value = '';
       document.getElementById('inp-pass').value = '';
       document.getElementById('login-error').textContent = '';
+      // Ocultar botones de tour
+      document.getElementById('tour-fab').classList.remove('visible');
+      document.getElementById('tour-topbar-btn').style.display = 'none';
+      // Cerrar tour si está activo
+      if (tourActive) endTour();
     }
 
     // Try auto-login from stored token
@@ -4335,6 +4807,269 @@
     function pmClear() { pinBuffer = ''; updatePMDots(); }
     function updatePMDots() { for (let i = 0; i < 4; i++) document.getElementById('pmd' + i).classList.toggle('filled', i < pinBuffer.length); }
     function verifyPM() { closePinOverlay(); }
+
+    // ══════════════════════════════════════════════════════
+    //  TOUR GUIADO — Sistema de visita guiada
+    // ══════════════════════════════════════════════════════
+    const TOUR_STEPS = [
+      {
+        target: '#brand',
+        icon: '🏪',
+        title: 'FreshMart — Tu sistema',
+        desc: 'Este es el panel de administración de <strong>FreshMart</strong>. Desde aquí controlas todas las operaciones de tu negocio: ventas, inventario, personal y proveedores.',
+        position: 'bottom',
+        view: null
+      },
+      {
+        target: '[data-view="dashboard"]',
+        icon: '📊',
+        title: 'Panel de Inicio',
+        desc: 'El <strong>Dashboard</strong> es tu centro de control. Muestra las ventas del día, alertas de inventario, accesos rápidos y los productos más vendidos en tiempo real.',
+        position: 'bottom',
+        view: 'dashboard'
+      },
+      {
+        target: '#dash-kpis',
+        icon: '💡',
+        title: 'Indicadores clave',
+        desc: 'Los <strong>KPIs</strong> te muestran de un vistazo las ventas del día, total de productos, alertas de stock crítico y órdenes pendientes. Se actualizan automáticamente.',
+        position: 'bottom',
+        view: 'dashboard'
+      },
+      {
+        target: '[data-view="pos"]',
+        icon: '🛒',
+        title: 'Punto de Venta',
+        desc: 'El módulo de <strong>Punto de Venta</strong> permite registrar ventas rápidamente. Busca productos por nombre o código, selecciona cantidades y procesa el cobro al cliente.',
+        position: 'bottom',
+        view: 'pos'
+      },
+      {
+        target: '[data-view="inventario"]',
+        icon: '📦',
+        title: 'Control de Inventario',
+        desc: 'En <strong>Inventario</strong> gestionas todos tus productos: stock, precios, fechas de vencimiento y categorías. Puedes filtrar, buscar y exportar el listado completo.',
+        position: 'bottom',
+        view: 'inventario'
+      },
+      {
+        target: '[data-view="cajeros"]',
+        icon: '👥',
+        title: 'Gestión de Personal',
+        desc: 'La sección de <strong>Personal</strong> te permite administrar cajeros y supervisores: ver sus turnos activos, horarios de entrada y salida, y el estado de cada empleado.',
+        position: 'bottom',
+        view: 'cajeros'
+      },
+      {
+        target: '[data-view="proveedores"]',
+        icon: '🚚',
+        title: 'Proveedores y Órdenes',
+        desc: 'En <strong>Proveedores</strong> registras tus distribuidores, creas órdenes de compra, haces seguimiento de entregas y controlas el historial de compras por proveedor.',
+        position: 'bottom',
+        view: 'proveedores'
+      },
+      {
+        target: '#user-pill',
+        icon: '👤',
+        title: 'Tu perfil de usuario',
+        desc: 'Aquí aparece tu <strong>nombre y rol</strong> en el sistema. Cada usuario tiene permisos según su rol: Administrador ve todo, Supervisor gestiona operaciones, Cajero solo vende.',
+        position: 'bottom-left',
+        view: null
+      },
+      {
+        target: '#logout-btn',
+        icon: '🔒',
+        title: 'Cierre de sesión seguro',
+        desc: 'Cuando termines tu turno, usa el botón <strong>Salir</strong> para cerrar tu sesión de forma segura. Así proteges los datos del negocio y tu cuenta personal.',
+        position: 'bottom-left',
+        view: null
+      }
+    ];
+
+    let tourStep = 0;
+    let tourActive = false;
+    let tourHL = null;
+    let tourTooltip = null;
+    let tourArrow = null;
+
+    function startTour() {
+      // Si el app no está visible todavía, salir
+      if (!document.getElementById('app').classList.contains('visible')) return;
+      document.getElementById('tour-welcome').classList.add('show');
+    }
+
+    function closeTourWelcome() {
+      document.getElementById('tour-welcome').classList.remove('show');
+    }
+
+    function beginTourSteps() {
+      closeTourWelcome();
+      tourStep = 0;
+      tourActive = true;
+      tourHL = document.getElementById('tour-hl');
+      tourTooltip = document.getElementById('tour-tooltip');
+      tourArrow = document.getElementById('tour-arrow');
+      document.getElementById('tour-overlay').classList.add('active');
+      showTourStep(tourStep);
+    }
+
+    function showTourStep(idx) {
+      const step = TOUR_STEPS[idx];
+      if (!step) { endTour(); return; }
+
+      // Navegar a la vista si es necesario
+      if (step.view) switchView(step.view);
+
+      // Pequeño delay para que el DOM se actualice
+      setTimeout(() => {
+        const el = document.querySelector(step.target);
+        if (!el) { tourNext(); return; }
+
+        // Calcular posición del elemento
+        const rect = el.getBoundingClientRect();
+        const pad = 8;
+
+        // Posicionar highlight
+        tourHL.style.top = (rect.top - pad) + 'px';
+        tourHL.style.left = (rect.left - pad) + 'px';
+        tourHL.style.width = (rect.width + pad * 2) + 'px';
+        tourHL.style.height = (rect.height + pad * 2) + 'px';
+
+        // Rellenar contenido
+        document.getElementById('tip-icon').textContent = step.icon;
+        document.getElementById('tip-title').textContent = step.title;
+        document.getElementById('tip-step').textContent = `Paso ${idx + 1} de ${TOUR_STEPS.length}`;
+        document.getElementById('tip-desc').innerHTML = step.desc;
+
+        // Dots de progreso
+        const dotsEl = document.getElementById('tour-dots');
+        dotsEl.innerHTML = TOUR_STEPS.map((_, i) =>
+          `<div class="tour-dot ${i < idx ? 'done' : i === idx ? 'active' : ''}"></div>`
+        ).join('');
+
+        // Botones
+        document.getElementById('tour-prev-btn').style.display = idx === 0 ? 'none' : '';
+        const nextBtn = document.getElementById('tour-next-btn');
+        nextBtn.textContent = idx === TOUR_STEPS.length - 1 ? '✓ Finalizar' : 'Siguiente →';
+
+        // Posicionar tooltip
+        positionTooltip(rect, step.position);
+
+        // Animación de entrada
+        tourTooltip.classList.remove('tour-pop');
+        void tourTooltip.offsetWidth;
+        tourTooltip.classList.add('tour-pop');
+
+      }, step.view ? 180 : 60);
+    }
+
+    function positionTooltip(rect, position) {
+      const tip = tourTooltip;
+      const arrow = tourArrow;
+      const TW = 340;
+      const vpW = window.innerWidth;
+      const vpH = window.innerHeight;
+      const GAP = 16;
+      const ARROW_SIZE = 10;
+
+      let top, left, arrowTop, arrowLeft, arrowBorderTop, arrowBorderLeft, arrowBorderRight, arrowBorderBottom;
+      tip.style.width = TW + 'px';
+
+      // Dimensiones del tooltip (aprox)
+      const TH = 250;
+
+      // Decidir posición: abajo del elemento por defecto
+      const spaceBelow = vpH - rect.bottom;
+      const spaceAbove = rect.top;
+
+      let placedBelow = spaceBelow >= TH + GAP || spaceBelow >= spaceAbove;
+
+      if (placedBelow) {
+        top = rect.bottom + GAP;
+        arrowTop = top - ARROW_SIZE / 2;
+        arrowBorderTop = '1px solid var(--border)';
+        arrowBorderLeft = '1px solid var(--border)';
+        arrowBorderRight = 'none';
+        arrowBorderBottom = 'none';
+      } else {
+        top = rect.top - TH - GAP;
+        if (top < 8) top = 8;
+        arrowTop = top + TH - ARROW_SIZE / 2;
+        arrowBorderTop = 'none';
+        arrowBorderLeft = 'none';
+        arrowBorderRight = '1px solid var(--border)';
+        arrowBorderBottom = '1px solid var(--border)';
+      }
+
+      // Alineación horizontal
+      const centerEl = rect.left + rect.width / 2;
+      left = centerEl - TW / 2;
+      if (left < 8) left = 8;
+      if (left + TW > vpW - 8) left = vpW - TW - 8;
+
+      arrowLeft = centerEl - ARROW_SIZE / 2;
+      if (arrowLeft < left + 20) arrowLeft = left + 20;
+      if (arrowLeft > left + TW - 30) arrowLeft = left + TW - 30;
+
+      tip.style.top = top + 'px';
+      tip.style.left = left + 'px';
+      arrow.style.top = arrowTop + 'px';
+      arrow.style.left = arrowLeft + 'px';
+      arrow.style.borderTop = arrowBorderTop;
+      arrow.style.borderLeft = arrowBorderLeft;
+      arrow.style.borderRight = arrowBorderRight;
+      arrow.style.borderBottom = arrowBorderBottom;
+    }
+
+    function tourNext() {
+      if (tourStep < TOUR_STEPS.length - 1) {
+        tourStep++;
+        showTourStep(tourStep);
+      } else {
+        endTour();
+      }
+    }
+
+    function tourPrev() {
+      if (tourStep > 0) {
+        tourStep--;
+        showTourStep(tourStep);
+      }
+    }
+
+    function endTour() {
+      tourActive = false;
+      document.getElementById('tour-overlay').classList.remove('active');
+      // Mostrar botón FAB y botón en topbar
+      const fab = document.getElementById('tour-fab');
+      fab.classList.remove('bounce');
+      void fab.offsetWidth;
+      fab.classList.add('bounce');
+      showToast('✅ Recorrido completado. ¡Listo para usar FreshMart!', 'ok');
+    }
+
+    function handleBackdropClick() {
+      // El click en el backdrop NO cierra el tour (UX intencional)
+    }
+
+    // Mostrar tour al hacer login y mostrar botones de tour
+    function showTourAfterLogin() {
+      const fab = document.getElementById('tour-fab');
+      const topBtn = document.getElementById('tour-topbar-btn');
+      fab.classList.add('visible');
+      topBtn.style.display = 'flex';
+      // Auto-lanzar bienvenida en primer login
+      setTimeout(() => startTour(), 800);
+    }
+
+    // Teclado: ESC para cerrar, flechas para navegar
+    document.addEventListener('keydown', e => {
+      if (!tourActive) return;
+      if (e.key === 'Escape') endTour();
+      if (e.key === 'ArrowRight' || e.key === 'Enter') tourNext();
+      if (e.key === 'ArrowLeft') tourPrev();
+    });
+  
   </script>
 </body>
 

@@ -46,7 +46,7 @@ templates = Jinja2Templates(directory="templates")
 @app.get("/")
 def home(request: Request):
     return templates.TemplateResponse(
-        request=request, name="index_v2.html", context={}
+        request=request, name="index.html", context={}
     )
 
 
@@ -856,29 +856,3 @@ def dashboard(user=Depends(get_current_user)):
 @app.get("/api/health")
 def health():
     return {"status": "ok", "version": "1.0.0"}
-
-# from fastapi import FastAPI, Request
-# from fastapi.staticfiles import StaticFiles
-# from fastapi.templating import `Jinja2Templates`
-# from init_db import init_database
-
-# app = FastAPI()
-
-# app.mount("/static", StaticFiles(directory="static"), name="static")
-
-# templates = `Jinja2Templates`(directory="templates")
-
-
-# @app.get("/")
-# def home(request: Request):
-#     return templates.TemplateResponse(
-#         request=request, name="index.html", context={}
-#     )
-
-
-# @app.get("/init")
-# def init_db(request: Request):
-#     init_database()
-#     return {
-#         "status": 201
-#     }
