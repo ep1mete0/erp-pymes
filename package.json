@@ -1,0 +1,24 @@
+{
+  "name": "local_first",
+  "version": "1.0.0",
+  "description": "Backend para gestion de minimarket construido con FastAPI + SQLite, con autenticacion JWT, control de inventario, ventas, proveedores, ordenes y turnos.",
+  "main": "__test__frontend.js",
+  "scripts": {
+    "test": "node __test__frontend.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ep1mete0/erp-pymes.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/ep1mete0/erp-pymes/issues"
+  },
+  "homepage": "https://github.com/ep1mete0/erp-pymes#readme",
+  "dependencies": {
+    "jsdom": "^29.1.1"
+  }
+}
