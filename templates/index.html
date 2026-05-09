@@ -956,7 +956,7 @@
       gap: 10px
     }
 
-    #barcode-input {
+    #pos-search {
       flex: 1;
       padding: 12px 16px;
       border: 2px solid var(--border);
@@ -969,12 +969,12 @@
       transition: border-color .15s, box-shadow .15s
     }
 
-    #barcode-input:focus {
+    #pos-search:focus {
       border-color: var(--primary);
       box-shadow: 0 0 0 3px rgba(22, 163, 74, .1)
     }
 
-    #barcode-input::placeholder {
+    #pos-search::placeholder {
       color: var(--text4)
     }
 
@@ -3410,7 +3410,7 @@
       <div class="view" id="view-pos">
         <div id="pos-header">
           <div id="scan-area">
-            <input id="barcode-input" placeholder="Buscar por nombre o escanear código de barras...">
+            <input id="pos-search" placeholder="Buscar por nombre o escanear código de barras...">
             <button id="scan-btn">Agregar</button>
           </div>
         </div>
@@ -3954,11 +3954,30 @@
     //  CONFIG
     // ══════════════════════════════════════════════════════
     const API = 'http://localhost:8000/api';
+    window.API = API;
 
     // ══════════════════════════════════════════════════════
     //  API CLIENT
     // ══════════════════════════════════════════════════════
     let authToken = localStorage.getItem('fm_token') || '';
+
+    const PERMISOS = {
+      admin: ['dashboard', 'pos', 'inventario', 'cajeros', 'proveedores'],
+      supervisor: ['dashboard', 'pos', 'inventario', 'proveedores'],
+      cajero: ['dashboard', 'pos'],
+    };
+
+    let currentUser = null, currentView = 'dashboard';
+    let inventory = [], allInventory = [];
+    let posCart = [], payMethod = 'Efectivo', posCat = 'Todos', posSearch = '';
+
+    // Exponer al scope global para tests y compatibilidad
+    window.API = API;
+    window.authToken = authToken;
+    window.PERMISOS = PERMISOS;
+    window.currentUser = currentUser;
+    window.posCart = posCart;
+    window.inventory = inventory;
 
     async function api(method, path, body) {
       const opts = {
@@ -3974,17 +3993,8 @@
     }
 
     // ══════════════════════════════════════════════════════
-    //  ESTADO GLOBAL
+    //  ESTADO GLOBAL (resto)
     // ══════════════════════════════════════════════════════
-    const PERMISOS = {
-      admin: ['dashboard', 'pos', 'inventario', 'cajeros', 'proveedores'],
-      supervisor: ['dashboard', 'pos', 'inventario', 'proveedores'],
-      cajero: ['dashboard', 'pos'],
-    };
-
-    let currentUser = null, currentView = 'dashboard';
-    let inventory = [], allInventory = [];
-    let posCart = [], payMethod = 'Efectivo', posCat = 'Todos', posSearch = '';
     let invEditId = null, invRestockId = null;
     let cajerosList = [], cajeroSelected = null, cajeroEditing = null, cFormPin = '';
     let proveedoresList = [], ordenesList = [], provSelected = null, provTab = 'info', provEditing = null;
@@ -3998,6 +4008,13 @@
     const avatarClass = r => r === 'admin' ? 'role-admin' : r === 'supervisor' ? 'role-supervisor' : 'role-cajero';
     const badgeClass = r => r === 'admin' ? 'badge-admin' : r === 'supervisor' ? 'badge-supervisor' : 'badge-cajero';
     const genUsuario = n => { const p = n.trim().split(' '); return p.length < 2 ? n.toLowerCase().replace(/\s+/g, '') : (p[0][0] + p[1]).toLowerCase().replace(/[^a-z0-9]/g, '') };
+    // Exponer utilidades al scope global (necesario para jsdom/tests)
+    window.fmt = fmt;
+    window.initials = initials;
+    window.rolLabel = rolLabel;
+    window.avatarClass = avatarClass;
+    window.badgeClass = badgeClass;
+    window.genUsuario = genUsuario;
     const getInvStatus = p => p.stock <= 5 ? 'critical' : p.stock <= p.stock_min ? 'low' : 'ok';
 
     function showToast(msg, type = 'ok') {
@@ -4359,11 +4376,11 @@
       }
     }
 
-    document.getElementById('barcode-input').addEventListener('input', function () {
+    document.getElementById('pos-search').addEventListener('input', function () {
       posSearch = this.value;
       renderPOSProducts();
     });
-    document.getElementById('barcode-input').addEventListener('keydown', function (e) {
+    document.getElementById('pos-search').addEventListener('keydown', function (e) {
       if (e.key === 'Enter') {
         const p = inventory.find(x => x.id === this.value.trim());
         if (p) { addToCart(p.id); this.value = ''; posSearch = ''; renderPOSProducts(); }
@@ -4371,7 +4388,7 @@
       }
     });
     document.getElementById('scan-btn').addEventListener('click', function () {
-      const inp = document.getElementById('barcode-input');
+      const inp = document.getElementById('pos-search');
       const p = inventory.find(x => x.id === inp.value.trim() || x.nombre.toLowerCase().includes(inp.value.toLowerCase()));
       if (p) { addToCart(p.id); inp.value = ''; posSearch = ''; renderPOSProducts(); }
       else if (inp.value) showToast('Código no encontrado', 'error');
@@ -5034,6 +5051,7 @@
         view: null
       }
     ];
+    window.TOUR_STEPS = TOUR_STEPS;
 
     let tourStep = 0;
     let tourActive = false;
@@ -5042,6 +5060,7 @@
     let tourArrow = null;
 
     const TOUR_SEEN_KEY = 'fm_tour_seen';
+    window.TOUR_SEEN_KEY = TOUR_SEEN_KEY;
 
     function startTour() {
       // Si el app no está visible todavía, salir
