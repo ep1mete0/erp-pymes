@@ -946,7 +946,9 @@
       background: var(--white);
       border-left: 1px solid var(--border);
       display: flex;
-      flex-direction: column
+      flex-direction: column;
+      overflow: hidden;
+      min-height: 0
     }
 
     #scan-area {
@@ -954,7 +956,7 @@
       gap: 10px
     }
 
-    #barcode-input {
+    #pos-search {
       flex: 1;
       padding: 12px 16px;
       border: 2px solid var(--border);
@@ -967,12 +969,12 @@
       transition: border-color .15s, box-shadow .15s
     }
 
-    #barcode-input:focus {
+    #pos-search:focus {
       border-color: var(--primary);
       box-shadow: 0 0 0 3px rgba(22, 163, 74, .1)
     }
 
-    #barcode-input::placeholder {
+    #pos-search::placeholder {
       color: var(--text4)
     }
 
@@ -1095,7 +1097,8 @@
       border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
-      justify-content: space-between
+      justify-content: space-between;
+      flex-shrink: 0
     }
 
     #pos-cart-hdr h3 {
@@ -1125,7 +1128,9 @@
     #pos-cart-list {
       flex: 1;
       overflow-y: auto;
-      padding: 8px 12px
+      overflow-x: hidden;
+      padding: 8px 12px;
+      min-height: 0
     }
 
     .cart-item {
@@ -1247,7 +1252,8 @@
       padding: 12px 16px;
       border-top: 1px solid var(--border);
       background: var(--bg);
-      flex-shrink: 0
+      flex-shrink: 0;
+      min-height: 0
     }
 
     .total-row {
@@ -1285,7 +1291,8 @@
     #pos-payment {
       padding: 12px 16px;
       border-top: 1px solid var(--border);
-      flex-shrink: 0
+      flex-shrink: 0;
+      min-height: 0
     }
 
     .pay-grid {
@@ -1366,7 +1373,9 @@
       cursor: pointer;
       font-family: 'Nunito', sans-serif;
       transition: all .2s;
-      box-shadow: 0 4px 12px rgba(22, 163, 74, .3)
+      box-shadow: 0 4px 12px rgba(22, 163, 74, .3);
+      flex-shrink: 0;
+      width: calc(100% - 32px)
     }
 
     #process-btn:hover:not(:disabled) {
@@ -2744,7 +2753,7 @@
       width: 340px;
       background: var(--white);
       border-radius: var(--radius-lg);
-      box-shadow: 0 24px 48px rgba(0,0,0,.22), 0 8px 16px rgba(0,0,0,.12);
+      box-shadow: 0 24px 48px rgba(0, 0, 0, .22), 0 8px 16px rgba(0, 0, 0, .12);
       border: 1px solid var(--border);
       overflow: hidden;
       pointer-events: all;
@@ -2768,7 +2777,7 @@
     .tour-tip-icon {
       width: 36px;
       height: 36px;
-      background: rgba(255,255,255,.2);
+      background: rgba(255, 255, 255, .2);
       border-radius: 9px;
       display: flex;
       align-items: center;
@@ -2786,7 +2795,7 @@
 
     .tour-tip-subtitle {
       font-size: 11px;
-      color: rgba(255,255,255,.75);
+      color: rgba(255, 255, 255, .75);
       font-weight: 500;
       margin-top: 1px
     }
@@ -2794,7 +2803,7 @@
     .tour-tip-close {
       width: 28px;
       height: 28px;
-      background: rgba(255,255,255,.15);
+      background: rgba(255, 255, 255, .15);
       border: none;
       border-radius: 7px;
       color: #fff;
@@ -2809,7 +2818,7 @@
     }
 
     .tour-tip-close:hover {
-      background: rgba(255,255,255,.28)
+      background: rgba(255, 255, 255, .28)
     }
 
     .tour-tip-body {
@@ -2884,14 +2893,14 @@
     .tour-btn-next {
       background: var(--primary);
       color: #fff;
-      box-shadow: 0 3px 10px rgba(22,163,74,.3);
+      box-shadow: 0 3px 10px rgba(22, 163, 74, .3);
       margin-left: auto
     }
 
     .tour-btn-next:hover {
       background: var(--primary-d);
       transform: translateY(-1px);
-      box-shadow: 0 5px 14px rgba(22,163,74,.35)
+      box-shadow: 0 5px 14px rgba(22, 163, 74, .35)
     }
 
     .tour-btn-prev {
@@ -2920,8 +2929,15 @@
 
     /* Animación de entrada del tooltip */
     @keyframes tourPop {
-      from { opacity: 0; transform: scale(.88) translateY(6px) }
-      to   { opacity: 1; transform: scale(1) translateY(0) }
+      from {
+        opacity: 0;
+        transform: scale(.88) translateY(6px)
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0)
+      }
     }
 
     .tour-pop {
@@ -2930,64 +2946,21 @@
 
     /* Pulso en el highlight */
     @keyframes tourPulse {
-      0%, 100% { outline-color: var(--primary); outline-offset: 4px }
-      50%       { outline-color: #22c55e; outline-offset: 7px }
+
+      0%,
+      100% {
+        outline-color: var(--primary);
+        outline-offset: 4px
+      }
+
+      50% {
+        outline-color: #22c55e;
+        outline-offset: 7px
+      }
     }
 
     .tour-highlight-box {
       animation: tourPulse 2s ease infinite
-    }
-
-    /* Botón flotante para reiniciar el tour */
-    #tour-fab {
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
-      z-index: 8000;
-      display: none;
-      align-items: center;
-      gap: 0;
-      background: var(--primary);
-      color: #fff;
-      border: none;
-      border-radius: 99px;
-      height: 48px;
-      padding: 0 20px 0 16px;
-      font-size: 13px;
-      font-weight: 700;
-      font-family: 'Nunito', sans-serif;
-      cursor: pointer;
-      box-shadow: 0 6px 20px rgba(22,163,74,.38), 0 2px 6px rgba(22,163,74,.2);
-      transition: all .2s;
-      overflow: hidden;
-      white-space: nowrap
-    }
-
-    #tour-fab.visible {
-      display: flex
-    }
-
-    #tour-fab:hover {
-      background: var(--primary-d);
-      transform: translateY(-2px);
-      box-shadow: 0 10px 28px rgba(22,163,74,.42), 0 4px 8px rgba(22,163,74,.22);
-      padding-right: 22px
-    }
-
-    #tour-fab svg {
-      width: 20px;
-      height: 20px;
-      margin-right: 8px;
-      flex-shrink: 0
-    }
-
-    @keyframes fabBounce {
-      0%, 100% { transform: translateY(0) }
-      50% { transform: translateY(-4px) }
-    }
-
-    #tour-fab.bounce {
-      animation: fabBounce .6s ease 3
     }
 
     /* Pantalla de bienvenida del tour */
@@ -2996,7 +2969,7 @@
       position: fixed;
       inset: 0;
       z-index: 9100;
-      background: rgba(10,20,40,.78);
+      background: rgba(10, 20, 40, .78);
       backdrop-filter: blur(6px);
       align-items: center;
       justify-content: center
@@ -3013,7 +2986,7 @@
       max-width: 440px;
       width: 90%;
       text-align: center;
-      box-shadow: 0 32px 64px rgba(0,0,0,.25);
+      box-shadow: 0 32px 64px rgba(0, 0, 0, .25);
       border: 1px solid var(--border)
     }
 
@@ -3058,14 +3031,14 @@
       font-weight: 700;
       font-family: 'Nunito', sans-serif;
       cursor: pointer;
-      box-shadow: 0 4px 14px rgba(22,163,74,.32);
+      box-shadow: 0 4px 14px rgba(22, 163, 74, .32);
       transition: all .15s
     }
 
     .tw-btn-start:hover {
       background: var(--primary-d);
       transform: translateY(-1px);
-      box-shadow: 0 6px 18px rgba(22,163,74,.38)
+      box-shadow: 0 6px 18px rgba(22, 163, 74, .38)
     }
 
     .tw-btn-skip {
@@ -3114,18 +3087,51 @@
   <!-- Pantalla de bienvenida -->
   <div id="tour-welcome">
     <div class="tw-card fade-in">
-      <span class="tw-emoji">🎯</span>
+      <span class="tw-emoji"><svg width="36px" height="36px"
+          style="color:var(--primary);vertical-align:middle;flex-shrink:0" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10" />
+          <circle cx="12" cy="12" r="6" />
+          <circle cx="12" cy="12" r="2" />
+        </svg></span>
       <div class="tw-title">Bienvenido a <span>FreshMart</span></div>
-      <div class="tw-desc">Te mostraremos en menos de 2 minutos todo lo que necesitas saber para usar el sistema con confianza.</div>
+      <div class="tw-desc">Te mostraremos en menos de 2 minutos todo lo que necesitas saber para usar el sistema con
+        confianza.</div>
       <div class="tw-steps-preview">
-        <div class="tw-step-pill">📊 Dashboard</div>
-        <div class="tw-step-pill">🛒 Ventas</div>
-        <div class="tw-step-pill">📦 Inventario</div>
+        <div class="tw-step-pill"><svg width="13px" height="13px"
+            style="color:currentColor;vertical-align:middle;flex-shrink:0" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="20" x2="18" y2="10" />
+            <line x1="12" y1="20" x2="12" y2="4" />
+            <line x1="6" y1="20" x2="6" y2="14" />
+          </svg> Dashboard</div>
+        <div class="tw-step-pill"><svg width="13px" height="13px"
+            style="color:currentColor;vertical-align:middle;flex-shrink:0" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="9" cy="21" r="1" />
+            <circle cx="20" cy="21" r="1" />
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+          </svg> Ventas</div>
+        <div class="tw-step-pill"><svg width="13px" height="13px"
+            style="color:currentColor;vertical-align:middle;flex-shrink:0" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path
+              d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+            <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+            <line x1="12" y1="22.08" x2="12" y2="12" />
+          </svg> Inventario</div>
         <div class="tw-step-pill">+3 más</div>
       </div>
       <div class="tw-actions">
         <button class="tw-btn-skip" onclick="closeTourWelcome()">Ahora no</button>
-        <button class="tw-btn-start" onclick="beginTourSteps()">🚀 Comenzar recorrido</button>
+        <button class="tw-btn-start" onclick="beginTourSteps()"><svg width="15px" height="15px"
+            style="color:currentColor;vertical-align:middle;flex-shrink:0" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z" />
+            <path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z" />
+            <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0" />
+            <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" />
+          </svg> Comenzar recorrido</button>
       </div>
     </div>
   </div>
@@ -3138,7 +3144,13 @@
     <div id="tour-tooltip">
       <div class="tour-tip-header">
         <div class="tour-tip-badge">
-          <div class="tour-tip-icon" id="tip-icon">📊</div>
+          <div class="tour-tip-icon" id="tip-icon"><svg width="28px" height="28px"
+              style="color:var(--primary);vertical-align:middle;flex-shrink:0" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="20" x2="18" y2="10" />
+              <line x1="12" y1="20" x2="12" y2="4" />
+              <line x1="6" y1="20" x2="6" y2="14" />
+            </svg></div>
           <div>
             <div class="tour-tip-title" id="tip-title">Título</div>
             <div class="tour-tip-subtitle" id="tip-step">Paso 1 de 7</div>
@@ -3157,16 +3169,7 @@
     </div>
   </div>
 
-  <!-- FAB flotante para reiniciar -->
-  <button id="tour-fab" onclick="startTour()" title="Reiniciar visita guiada">
-    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="12" cy="12" r="10" stroke="white" stroke-width="1.8"/>
-      <path d="M12 8v4l3 3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M7 12a5 5 0 0 1 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
-      <path d="M5.5 7L7 12l4.5-1.5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-    Visita guiada
-  </button>
+
   <div id="login-screen">
     <div class="login-wrap fade-in">
       <div class="login-left">
@@ -3174,13 +3177,33 @@
         <div class="login-tagline">Sistema de gestión para tu negocio</div>
         <div class="login-features">
           <div class="lf-item">
-            <div class="lf-icon g">🛒</div><span>Punto de venta rápido y sencillo</span>
+            <div class="lf-icon g"><svg width="18px" height="18px"
+                style="color:var(--primary);vertical-align:middle;flex-shrink:0" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="9" cy="21" r="1" />
+                <circle cx="20" cy="21" r="1" />
+                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+              </svg></div><span>Punto de venta rápido y sencillo</span>
           </div>
           <div class="lf-item">
-            <div class="lf-icon b">📦</div><span>Control de inventario en tiempo real</span>
+            <div class="lf-icon b"><svg width="18px" height="18px"
+                style="color:var(--blue);vertical-align:middle;flex-shrink:0" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path
+                  d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+                <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+                <line x1="12" y1="22.08" x2="12" y2="12" />
+              </svg></div><span>Control de inventario en tiempo real</span>
           </div>
           <div class="lf-item">
-            <div class="lf-icon o">🚚</div><span>Gestión de proveedores y órdenes</span>
+            <div class="lf-icon o"><svg width="18px" height="18px"
+                style="color:var(--orange);vertical-align:middle;flex-shrink:0" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="1" y="3" width="15" height="13" />
+                <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
+                <circle cx="5.5" cy="18.5" r="2.5" />
+                <circle cx="18.5" cy="18.5" r="2.5" />
+              </svg></div><span>Gestión de proveedores y órdenes</span>
           </div>
         </div>
       </div>
@@ -3213,15 +3236,49 @@
       <div id="brand">Fresh<span>Mart</span></div>
       <nav id="top-nav">
         <button class="nav-btn active" data-view="dashboard" onclick="switchView('dashboard')"><span
-            class="nav-icon">📊</span> Inicio</button>
-        <button class="nav-btn" data-view="pos" onclick="switchView('pos')"><span class="nav-icon">🛒</span> Punto de
+            class="nav-icon"><svg width="18px" height="18px"
+              style="color:currentColor;vertical-align:middle;flex-shrink:0" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="20" x2="18" y2="10" />
+              <line x1="12" y1="20" x2="12" y2="4" />
+              <line x1="6" y1="20" x2="6" y2="14" />
+            </svg></span> Inicio</button>
+        <button class="nav-btn" data-view="pos" onclick="switchView('pos')"><span class="nav-icon"><svg width="18px"
+              height="18px" style="color:currentColor;vertical-align:middle;flex-shrink:0" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="9" cy="21" r="1" />
+              <circle cx="20" cy="21" r="1" />
+              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+            </svg></span> Punto de
           Venta</button>
-        <button class="nav-btn" data-view="inventario" onclick="switchView('inventario')"><span
-            class="nav-icon">📦</span> Inventario</button>
-        <button class="nav-btn" data-view="cajeros" onclick="switchView('cajeros')"><span class="nav-icon">👥</span>
+        <button class="nav-btn" data-view="inventario" onclick="switchView('inventario')"><span class="nav-icon"><svg
+              width="18px" height="18px" style="color:currentColor;vertical-align:middle;flex-shrink:0"
+              viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path
+                d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+              <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+              <line x1="12" y1="22.08" x2="12" y2="12" />
+            </svg></span> Inventario</button>
+        <button class="nav-btn" data-view="cajeros" onclick="switchView('cajeros')"><span class="nav-icon"><svg
+              width="18px" height="18px" style="color:currentColor;vertical-align:middle;flex-shrink:0"
+              viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+            </svg></span>
           Personal</button>
-        <button class="nav-btn" data-view="proveedores" onclick="switchView('proveedores')"><span
-            class="nav-icon">🚚</span> Proveedores</button>
+        <button class="nav-btn" data-view="proveedores" onclick="switchView('proveedores')"><span class="nav-icon"><svg
+              width="18px" height="18px" style="color:currentColor;vertical-align:middle;flex-shrink:0"
+              viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round">
+              <rect x="1" y="3" width="15" height="13" />
+              <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
+              <circle cx="5.5" cy="18.5" r="2.5" />
+              <circle cx="18.5" cy="18.5" r="2.5" />
+            </svg></span> Proveedores</button>
       </nav>
       <div id="top-right">
         <div id="top-clock"></div>
@@ -3234,8 +3291,19 @@
         </div>
         <button id="logout-btn" onclick="doLogout()">Salir</button>
         <!-- Botón tour en top-bar -->
-        <button id="tour-topbar-btn" onclick="startTour()" title="Ver visita guiada" style="display:none;align-items:center;gap:6px;padding:7px 13px;background:var(--primary-l);color:var(--primary);border:1.5px solid var(--primary);border-radius:var(--radius-sm);font-size:12px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;transition:all .15s" onmouseover="this.style.background='var(--primary)';this.style.color='#fff'" onmouseout="this.style.background='var(--primary-l)';this.style.color='var(--primary)'">
-          <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:15px;height:15px;flex-shrink:0"><path d="M10 2C5.58172 2 2 5.58172 2 10C2 14.4183 5.58172 18 10 18C14.4183 18 18 14.4183 18 10C18 5.58172 14.4183 2 10 2Z" stroke="currentColor" stroke-width="1.8"/><path d="M10 9V14M10 6.5V7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <button id="tour-topbar-btn" onclick="startTour()" title="Ver visita guiada"
+          style="display:none;align-items:center;gap:6px;padding:7px 13px;background:var(--primary-l);color:var(--primary);border:1.5px solid var(--primary);border-radius:var(--radius-sm);font-size:12px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;transition:all .15s"
+          onmouseover="this.style.background='var(--primary)';this.style.color='#fff'"
+          onmouseout="this.style.background='var(--primary-l)';this.style.color='var(--primary)'">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
+            style="width:15px;height:15px;flex-shrink:0">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.8" />
+            <path d="M12 8v4l3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" />
+            <path d="M7 12a5 5 0 0 1 5-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+            <path d="M5.5 7L7 12l4.5-1.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+              stroke-linejoin="round" />
+          </svg>
           Visita guiada
         </button>
       </div>
@@ -3247,14 +3315,26 @@
         <div class="dash-body">
           <div class="kpi-grid" id="dash-kpis">
             <div class="kpi-card">
-              <div class="kpi-icon g">💰</div>
+              <div class="kpi-icon g"><svg width="22px" height="22px"
+                  style="color:var(--primary);vertical-align:middle;flex-shrink:0" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="12" y1="1" x2="12" y2="23" />
+                  <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                </svg></div>
               <div class="kpi-info">
                 <div class="kpi-label">Cargando...</div>
                 <div class="kpi-value">—</div>
               </div>
             </div>
             <div class="kpi-card">
-              <div class="kpi-icon b">📦</div>
+              <div class="kpi-icon b"><svg width="22px" height="22px"
+                  style="color:var(--blue);vertical-align:middle;flex-shrink:0" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path
+                    d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+                  <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+                  <line x1="12" y1="22.08" x2="12" y2="12" />
+                </svg></div>
               <div class="kpi-info">
                 <div class="kpi-label">Cargando...</div>
                 <div class="kpi-value">—</div>
@@ -3268,7 +3348,12 @@
               </div>
             </div>
             <div class="kpi-card">
-              <div class="kpi-icon o">📋</div>
+              <div class="kpi-icon o"><svg width="22px" height="22px"
+                  style="color:var(--orange);vertical-align:middle;flex-shrink:0" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+                  <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
+                </svg></div>
               <div class="kpi-info">
                 <div class="kpi-label">Cargando...</div>
                 <div class="kpi-value">—</div>
@@ -3286,7 +3371,12 @@
               </div>
             </div>
             <div class="card">
-              <div class="card-hdr"><span class="card-hdr-icon">🔔</span><span class="card-hdr-title">Alertas del
+              <div class="card-hdr"><span class="card-hdr-icon"><svg width="16px" height="16px"
+                    style="color:currentColor;vertical-align:middle;flex-shrink:0" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                  </svg></span><span class="card-hdr-title">Alertas del
                   sistema</span></div>
               <div class="card-body" id="dash-alerts">
                 <div class="loading-row">
@@ -3320,7 +3410,7 @@
       <div class="view" id="view-pos">
         <div id="pos-header">
           <div id="scan-area">
-            <input id="barcode-input" placeholder="🔍 Buscar por nombre o escanear código de barras...">
+            <input id="pos-search" placeholder="Buscar por nombre o escanear código de barras...">
             <button id="scan-btn">Agregar</button>
           </div>
         </div>
@@ -3339,12 +3429,24 @@
           </div>
           <div id="pos-right">
             <div id="pos-cart-hdr">
-              <h3>🛒 Carrito</h3>
+              <h3><svg width="18px" height="18px" style="color:var(--primary);vertical-align:middle;flex-shrink:0"
+                  viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                  stroke-linejoin="round">
+                  <circle cx="9" cy="21" r="1" />
+                  <circle cx="20" cy="21" r="1" />
+                  <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+                </svg> Carrito</h3>
               <button id="clear-cart">Limpiar todo</button>
             </div>
             <div id="pos-cart-list">
               <div id="cart-empty">
-                <div class="icon">🛒</div>
+                <div class="icon"><svg width="40px" height="40px"
+                    style="color:#cbd5e1;vertical-align:middle;flex-shrink:0" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="9" cy="21" r="1" />
+                    <circle cx="20" cy="21" r="1" />
+                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+                  </svg></div>
                 <p>El carrito está vacío.<br>Agrega productos para comenzar.</p>
               </div>
             </div>
@@ -3356,9 +3458,24 @@
             </div>
             <div id="pos-payment">
               <div class="pay-grid">
-                <button class="pay-btn active" data-pay="Efectivo"><span class="pay-icon">💵</span>Efectivo</button>
-                <button class="pay-btn" data-pay="Tarjeta"><span class="pay-icon">💳</span>Tarjeta</button>
-                <button class="pay-btn" data-pay="Transferencia"><span class="pay-icon">📱</span>Transfer.</button>
+                <button class="pay-btn active" data-pay="Efectivo"><span class="pay-icon"><svg width="20px"
+                      height="20px" style="color:currentColor;vertical-align:middle;flex-shrink:0" viewBox="0 0 24 24"
+                      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+                      <line x1="1" y1="10" x2="23" y2="10" />
+                    </svg></span>Efectivo</button>
+                <button class="pay-btn" data-pay="Tarjeta"><span class="pay-icon"><svg width="20px" height="20px"
+                      style="color:currentColor;vertical-align:middle;flex-shrink:0" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+                      <line x1="1" y1="10" x2="23" y2="10" />
+                    </svg></span>Tarjeta</button>
+                <button class="pay-btn" data-pay="Transferencia"><span class="pay-icon"><svg width="20px" height="20px"
+                      style="color:currentColor;vertical-align:middle;flex-shrink:0" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="5" y="2" width="14" height="20" rx="2" ry="2" />
+                      <line x1="12" y1="18" x2="12.01" y2="18" />
+                    </svg></span>Transfer.</button>
               </div>
               <div id="cash-input-row" style="margin-bottom:10px">
                 <input id="cash-in" type="number" placeholder="Monto recibido $">
@@ -3376,7 +3493,7 @@
       <!-- ── INVENTARIO ── -->
       <div class="view" id="view-inventario">
         <div id="inv-header">
-          <input id="search-inv" placeholder="🔍 Buscar por nombre o código...">
+          <input id="search-inv" placeholder="Buscar por nombre o código...">
           <select class="filter-sel" id="filter-cat">
             <option value="">Todas las categorías</option>
           </select>
@@ -3440,14 +3557,19 @@
         <div id="cajero-layout">
           <div id="cajero-left">
             <div id="cajero-toolbar">
-              <input id="search-cajero" placeholder="🔍 Buscar por nombre...">
+              <input id="search-cajero" placeholder="Buscar por nombre...">
               <button class="btn btn-primary btn-sm" onclick="cajeroNuevo()">+ Nuevo</button>
             </div>
             <div id="cajero-list"></div>
           </div>
           <div id="cajero-right">
             <div id="cajero-empty">
-              <div class="icon">👤</div>
+              <div class="icon"><svg width="40px" height="40px"
+                  style="color:#cbd5e1;vertical-align:middle;flex-shrink:0" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                  <circle cx="12" cy="7" r="4" />
+                </svg></div>
               <p>Selecciona una persona para ver sus datos</p>
               <p style="font-size:12px;color:var(--text4);margin-top:-4px">o crea una nueva</p>
             </div>
@@ -3516,10 +3638,29 @@
               </div>
               <div class="acciones-card fade-in">
                 <div class="det-section-title">Acciones</div>
-                <button class="btn-accion" onclick="cajeroEditar()">✏️ Editar datos o cambiar PIN</button>
-                <button class="btn-accion" id="toggle-btn" onclick="cajeroToggle()"><span id="toggle-ico">🔒</span>
+                <button class="btn-accion" onclick="cajeroEditar()"><svg width="14px" height="14px"
+                    style="color:currentColor;vertical-align:middle;flex-shrink:0" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                  </svg> Editar datos o cambiar PIN</button>
+                <button class="btn-accion" id="toggle-btn" onclick="cajeroToggle()"><span id="toggle-ico"><svg
+                      width="14px" height="14px" style="color:currentColor;vertical-align:middle;flex-shrink:0"
+                      viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                      stroke-linejoin="round">
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                    </svg></span>
                   <span id="toggle-lbl">Desactivar acceso</span></button>
-                <button class="btn-accion danger" onclick="cajeroEliminar()">🗑 Eliminar del sistema</button>
+                <button class="btn-accion danger" onclick="cajeroEliminar()"><svg width="14px" height="14px"
+                    style="color:currentColor;vertical-align:middle;flex-shrink:0" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 6 5 6 21 6" />
+                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                    <path d="M10 11v6" />
+                    <path d="M14 11v6" />
+                    <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+                  </svg> Eliminar del sistema</button>
               </div>
             </div>
           </div>
@@ -3531,7 +3672,7 @@
         <div id="prov-layout">
           <div id="prov-left">
             <div id="prov-toolbar">
-              <input id="search-prov" placeholder="🔍 Buscar proveedor...">
+              <input id="search-prov" placeholder="Buscar proveedor...">
               <button class="btn btn-primary btn-sm" onclick="openProvModal()">+ Proveedor</button>
               <button class="btn btn-ghost btn-sm" onclick="openOrderModal()">+ Orden</button>
             </div>
@@ -3562,8 +3703,13 @@
                 <p id="pdet-sub">—</p>
               </div>
               <div style="display:flex;gap:6px;align-items:center">
-                <button class="btn btn-ghost btn-sm" id="pbtn-edit" onclick="editCurrentProv()" style="display:none">✏️
-                  Editar</button>
+                <button class="btn btn-ghost btn-sm" id="pbtn-edit" onclick="editCurrentProv()"
+                  style="display:none"><svg width="14px" height="14px"
+                    style="color:currentColor;vertical-align:middle;flex-shrink:0" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                  </svg> Editar</button>
                 <button class="btn btn-primary btn-sm" id="pbtn-order" onclick="openOrderModal()" style="display:none">+
                   Orden</button>
               </div>
@@ -3654,7 +3800,12 @@
       </div>
       <div class="modal-actions">
         <button class="modal-cancel" onclick="closeRestockModal()">Cancelar</button>
-        <button class="modal-save" onclick="confirmRestock()">✅ Ingresar</button>
+        <button class="modal-save" onclick="confirmRestock()"><svg width="15px" height="15px"
+            style="color:currentColor;vertical-align:middle;flex-shrink:0" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+            <polyline points="22 4 12 14.01 9 11.01" />
+          </svg> Ingresar</button>
       </div>
     </div>
   </div>
@@ -3803,11 +3954,30 @@
     //  CONFIG
     // ══════════════════════════════════════════════════════
     const API = 'http://localhost:8000/api';
+    window.API = API;
 
     // ══════════════════════════════════════════════════════
     //  API CLIENT
     // ══════════════════════════════════════════════════════
     let authToken = localStorage.getItem('fm_token') || '';
+
+    const PERMISOS = {
+      admin: ['dashboard', 'pos', 'inventario', 'cajeros', 'proveedores'],
+      supervisor: ['dashboard', 'pos', 'inventario', 'proveedores'],
+      cajero: ['dashboard', 'pos'],
+    };
+
+    let currentUser = null, currentView = 'dashboard';
+    let inventory = [], allInventory = [];
+    let posCart = [], payMethod = 'Efectivo', posCat = 'Todos', posSearch = '';
+
+    // Exponer al scope global para tests y compatibilidad
+    window.API = API;
+    window.authToken = authToken;
+    window.PERMISOS = PERMISOS;
+    window.currentUser = currentUser;
+    window.posCart = posCart;
+    window.inventory = inventory;
 
     async function api(method, path, body) {
       const opts = {
@@ -3823,17 +3993,8 @@
     }
 
     // ══════════════════════════════════════════════════════
-    //  ESTADO GLOBAL
+    //  ESTADO GLOBAL (resto)
     // ══════════════════════════════════════════════════════
-    const PERMISOS = {
-      admin: ['dashboard', 'pos', 'inventario', 'cajeros', 'proveedores'],
-      supervisor: ['dashboard', 'pos', 'inventario', 'proveedores'],
-      cajero: ['dashboard', 'pos'],
-    };
-
-    let currentUser = null, currentView = 'dashboard';
-    let inventory = [], allInventory = [];
-    let posCart = [], payMethod = 'Efectivo', posCat = 'Todos', posSearch = '';
     let invEditId = null, invRestockId = null;
     let cajerosList = [], cajeroSelected = null, cajeroEditing = null, cFormPin = '';
     let proveedoresList = [], ordenesList = [], provSelected = null, provTab = 'info', provEditing = null;
@@ -3847,6 +4008,13 @@
     const avatarClass = r => r === 'admin' ? 'role-admin' : r === 'supervisor' ? 'role-supervisor' : 'role-cajero';
     const badgeClass = r => r === 'admin' ? 'badge-admin' : r === 'supervisor' ? 'badge-supervisor' : 'badge-cajero';
     const genUsuario = n => { const p = n.trim().split(' '); return p.length < 2 ? n.toLowerCase().replace(/\s+/g, '') : (p[0][0] + p[1]).toLowerCase().replace(/[^a-z0-9]/g, '') };
+    // Exponer utilidades al scope global (necesario para jsdom/tests)
+    window.fmt = fmt;
+    window.initials = initials;
+    window.rolLabel = rolLabel;
+    window.avatarClass = avatarClass;
+    window.badgeClass = badgeClass;
+    window.genUsuario = genUsuario;
     const getInvStatus = p => p.stock <= 5 ? 'critical' : p.stock <= p.stock_min ? 'low' : 'ok';
 
     function showToast(msg, type = 'ok') {
@@ -3867,7 +4035,7 @@
       const p = document.getElementById('inp-pass').value;
       const errEl = document.getElementById('login-error');
       const btn = document.getElementById('login-btn');
-      if (!u || !p) { errEl.textContent = '❌ Completa todos los campos'; return; }
+      if (!u || !p) { errEl.textContent = 'Completa todos los campos'; return; }
       btn.disabled = true;
       btn.textContent = 'Ingresando...';
       errEl.textContent = '';
@@ -3878,7 +4046,7 @@
         currentUser = res.user;
         startApp();
       } catch (e) {
-        errEl.textContent = '❌ ' + e.message;
+        errEl.textContent = e.message;
       } finally {
         btn.disabled = false;
         btn.textContent = 'Entrar al sistema →';
@@ -3917,8 +4085,7 @@
       document.getElementById('inp-user').value = '';
       document.getElementById('inp-pass').value = '';
       document.getElementById('login-error').textContent = '';
-      // Ocultar botones de tour
-      document.getElementById('tour-fab').classList.remove('visible');
+      // Ocultar botón de tour
       document.getElementById('tour-topbar-btn').style.display = 'none';
       // Cerrar tour si está activo
       if (tourActive) endTour();
@@ -3961,12 +4128,12 @@
         const d = await api('GET', '/dashboard');
         const perms = PERMISOS[currentUser.rol] || [];
         let kpis = `
-      <div class="kpi-card"><div class="kpi-icon g">💰</div><div class="kpi-info"><div class="kpi-label">Ventas de hoy</div><div class="kpi-value">${fmt(d.ventas_hoy_total)}</div><div class="kpi-sub">${d.ventas_hoy_count} transacciones</div></div></div>
-      <div class="kpi-card"><div class="kpi-icon b">📦</div><div class="kpi-info"><div class="kpi-label">Total de productos</div><div class="kpi-value">${d.total_productos}</div><div class="kpi-sub">en catálogo</div></div></div>`;
+      <div class="kpi-card"><div class="kpi-icon g"><svg width="22px" height="22px" style="color:var(--primary);vertical-align:middle;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div class="kpi-info"><div class="kpi-label">Ventas de hoy</div><div class="kpi-value">${fmt(d.ventas_hoy_total)}</div><div class="kpi-sub">${d.ventas_hoy_count} transacciones</div></div></div>
+      <div class="kpi-card"><div class="kpi-icon b"><svg width="22px" height="22px" style="color:var(--blue);vertical-align:middle;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></div><div class="kpi-info"><div class="kpi-label">Total de productos</div><div class="kpi-value">${d.total_productos}</div><div class="kpi-sub">en catálogo</div></div></div>`;
         if (perms.includes('inventario'))
           kpis += `<div class="kpi-card"><div class="kpi-icon r">🚨</div><div class="kpi-info"><div class="kpi-label">Stock crítico</div><div class="kpi-value" style="color:var(--red)">${d.criticos}</div><div class="kpi-sub">requieren reposición</div></div></div>`;
         if (perms.includes('proveedores'))
-          kpis += `<div class="kpi-card"><div class="kpi-icon o">📋</div><div class="kpi-info"><div class="kpi-label">Órdenes pendientes</div><div class="kpi-value" style="color:var(--orange)">${d.ordenes_pendientes}</div><div class="kpi-sub">por recibir</div></div></div>`;
+          kpis += `<div class="kpi-card"><div class="kpi-icon o"><svg width="22px" height="22px" style="color:var(--orange);vertical-align:middle;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg></div><div class="kpi-info"><div class="kpi-label">Órdenes pendientes</div><div class="kpi-value" style="color:var(--orange)">${d.ordenes_pendientes}</div><div class="kpi-sub">por recibir</div></div></div>`;
         document.getElementById('dash-kpis').innerHTML = kpis;
 
         const actHtml = d.ultimas_ventas.length > 0
@@ -3981,16 +4148,16 @@
 
         const alerts = [];
         if (d.criticos) alerts.push({ t: 'crit', icon: '🚨', msg: `<strong>${d.criticos} productos</strong> tienen stock crítico (≤5 unidades). ¡Necesitan reposición urgente!` });
-        if (d.bajos) alerts.push({ t: 'warn', icon: '⚠️', msg: `<strong>${d.bajos} productos</strong> están por debajo del stock mínimo.` });
-        if (d.ordenes_pendientes) alerts.push({ t: 'info', icon: '📋', msg: `<strong>${d.ordenes_pendientes} órdenes de compra</strong> están pendientes de recibir.` });
-        alerts.push({ t: 'info', icon: '✅', msg: 'Sistema conectado y funcionando correctamente.' });
+        if (d.bajos) alerts.push({ t: 'warn', icon: `<svg width="18px" height="18px" style="color:var(--orange);vertical-align:middle;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`, msg: `<strong>${d.bajos} productos</strong> están por debajo del stock mínimo.` });
+        if (d.ordenes_pendientes) alerts.push({ t: 'info', icon: `<svg width="18px" height="18px" style="color:var(--blue);vertical-align:middle;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>`, msg: `<strong>${d.ordenes_pendientes} órdenes de compra</strong> están pendientes de recibir.` });
+        alerts.push({ t: 'info', icon: `<svg width="18px" height="18px" style="color:var(--primary);vertical-align:middle;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`, msg: 'Sistema conectado y funcionando correctamente.' });
         document.getElementById('dash-alerts').innerHTML = alerts.map(a => `
       <div class="alert-item ${a.t}"><div class="alert-icon">${a.icon}</div><div class="alert-text">${a.msg}</div></div>`).join('');
 
         const topHtml = d.top_productos.length > 0
           ? d.top_productos.map(p => `
         <div class="activity-item">
-          <div style="font-size:20px">📦</div>
+          <svg width="20px" height="20px" style="color:#94a3b8;vertical-align:middle;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
           <div class="act-text">${p.nombre}</div>
           <div class="act-time" style="color:var(--primary);font-weight:700">${p.total_vendidos} und.</div>
         </div>`).join('')
@@ -3998,10 +4165,10 @@
         document.getElementById('dash-top').innerHTML = topHtml;
 
         const links = [];
-        if (perms.includes('pos')) links.push({ icon: '🛒', label: 'Nueva venta', sub: 'Abrir punto de venta', view: 'pos' });
-        if (perms.includes('inventario')) links.push({ icon: '📦', label: 'Ver inventario', sub: 'Productos y stock', view: 'inventario' });
-        if (perms.includes('proveedores')) links.push({ icon: '🚚', label: 'Proveedores', sub: 'Órdenes y contactos', view: 'proveedores' });
-        if (perms.includes('cajeros')) links.push({ icon: '👥', label: 'Personal', sub: 'Cajeros y roles', view: 'cajeros' });
+        if (perms.includes('pos')) links.push({ icon: `<svg width="20px" height="20px" style="color:var(--primary);vertical-align:middle;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>`, label: 'Nueva venta', sub: 'Abrir punto de venta', view: 'pos' });
+        if (perms.includes('inventario')) links.push({ icon: `<svg width="20px" height="20px" style="color:var(--blue);vertical-align:middle;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>`, label: 'Ver inventario', sub: 'Productos y stock', view: 'inventario' });
+        if (perms.includes('proveedores')) links.push({ icon: `<svg width="20px" height="20px" style="color:var(--orange);vertical-align:middle;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>`, label: 'Proveedores', sub: 'Órdenes y contactos', view: 'proveedores' });
+        if (perms.includes('cajeros')) links.push({ icon: `<svg width="20px" height="20px" style="color:var(--purple);vertical-align:middle;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`, label: 'Personal', sub: 'Cajeros y roles', view: 'cajeros' });
         document.getElementById('dash-links').innerHTML = links.map(l => `
       <div class="quick-link" onclick="switchView('${l.view}')">
         <div class="ql-icon">${l.icon}</div>
@@ -4052,7 +4219,7 @@
         if (!d) return '';
         const diff = (new Date(d) - new Date()) / 86400000;
         if (diff < 0) return ' 🔴';
-        if (diff < 7) return ' ⚠️';
+        if (diff < 7) return ' !'
         return '';
       };
       const tbody = document.getElementById('inv-body');
@@ -4067,7 +4234,7 @@
         const badgeLbl = st === 'critical' ? 'Crítico' : st === 'low' ? 'Bajo' : 'OK';
         const margin = p.precio > 0 ? Math.round((p.precio - p.costo) / p.precio * 100) : 0;
         return `<tr class="${rowCls}">
-      <td style="font-size:20px;text-align:center">${p.icono || '📦'}</td>
+      <td style="text-align:center;padding:6px">${p.icono && !p.icono.match(/[\u{1F300}-\u{1FFFF}]/u) ? p.icono : `<svg width="20px" height="20px" style="color:#94a3b8;vertical-align:middle;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>`}</td>
       <td style="font-weight:600;color:var(--text)">${p.nombre}</td>
       <td style="font-family:monospace;font-size:12px;color:var(--text3)">${p.id}</td>
       <td><span style="padding:2px 8px;border-radius:99px;background:var(--blue-l);color:var(--blue);font-size:11px;font-weight:700">${p.categoria}</span></td>
@@ -4079,9 +4246,9 @@
       <td style="color:var(--text3);font-size:12px">${p.vencimiento ? p.vencimiento + expWarning(p.vencimiento) : '—'}</td>
       <td><span class="badge ${badgeCls}">${badgeLbl}</span></td>
       <td>
-        <button class="act-btn act-edit" onclick="editInvProduct('${p.id}')">✏️ Editar</button>
-        <button class="act-btn act-rep" onclick="openRestockModal('${p.id}')">📥 Stock</button>
-        <button class="act-btn act-del" onclick="deleteInvProduct('${p.id}')">🗑</button>
+        <button class="act-btn act-edit" onclick="editInvProduct('${p.id}')"><svg width="13px" height="13px" style="vertical-align:middle;flex-shrink:0;margin-right:3px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Editar</button>
+        <button class="act-btn act-rep" onclick="openRestockModal('${p.id}')"><svg width="13px" height="13px" style="vertical-align:middle;flex-shrink:0;margin-right:3px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>Stock</button>
+        <button class="act-btn act-del" onclick="deleteInvProduct('${p.id}')"><svg width="13px" height="13px" style="vertical-align:middle;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
       </td>
     </tr>`;
       }).join('');
@@ -4137,15 +4304,15 @@
       try {
         if (invEditId) {
           await api('PATCH', `/productos/${invEditId}`, data);
-          showToast('✅ Producto actualizado', 'ok');
+          showToast('Producto actualizado', 'ok');
         } else {
           await api('POST', '/productos', data);
-          showToast('✅ Producto creado', 'ok');
+          showToast('Producto creado', 'ok');
         }
         closeInvModal();
         await loadInventario();
       } catch (e) {
-        showToast('❌ ' + e.message, 'error');
+        showToast('' + e.message, 'error');
       }
     }
 
@@ -4154,17 +4321,17 @@
       if (!confirm(`¿Eliminar "${p?.nombre}"? Esta acción no se puede deshacer.`)) return;
       try {
         await api('DELETE', `/productos/${id}`);
-        showToast('✅ Producto eliminado', 'ok');
+        showToast('Producto eliminado', 'ok');
         await loadInventario();
       } catch (e) {
-        showToast('❌ ' + e.message, 'error');
+        showToast('' + e.message, 'error');
       }
     }
 
     function openRestockModal(id) {
       invRestockId = id;
       const p = allInventory.find(x => x.id === id);
-      document.getElementById('restock-info').textContent = `${p?.icono || '📦'} ${p?.nombre} — Stock actual: ${p?.stock} unidades`;
+      document.getElementById('restock-info').textContent = `${p?.nombre} — Stock actual: ${p?.stock} unidades`;
       document.getElementById('rs-qty').value = '';
       document.getElementById('rs-note').value = '';
       // Load proveedores en select
@@ -4185,12 +4352,12 @@
           proveedor: document.getElementById('rs-prov').value || null,
           nota: document.getElementById('rs-note').value || null,
         });
-        showToast(`✅ Stock actualizado. Nuevo stock: ${res.nuevo_stock}`, 'ok');
+        showToast(`Stock actualizado. Nuevo stock: ${res.nuevo_stock}`, 'ok');
         closeRestockModal();
         await loadInventario();
         if (currentView === 'pos') await loadPOS();
       } catch (e) {
-        showToast('❌ ' + e.message, 'error');
+        showToast('' + e.message, 'error');
       }
     }
 
@@ -4209,22 +4376,22 @@
       }
     }
 
-    document.getElementById('barcode-input').addEventListener('input', function () {
+    document.getElementById('pos-search').addEventListener('input', function () {
       posSearch = this.value;
       renderPOSProducts();
     });
-    document.getElementById('barcode-input').addEventListener('keydown', function (e) {
+    document.getElementById('pos-search').addEventListener('keydown', function (e) {
       if (e.key === 'Enter') {
         const p = inventory.find(x => x.id === this.value.trim());
         if (p) { addToCart(p.id); this.value = ''; posSearch = ''; renderPOSProducts(); }
-        else if (this.value) showToast('❌ Producto no encontrado', 'error');
+        else if (this.value) showToast('Producto no encontrado', 'error');
       }
     });
     document.getElementById('scan-btn').addEventListener('click', function () {
-      const inp = document.getElementById('barcode-input');
+      const inp = document.getElementById('pos-search');
       const p = inventory.find(x => x.id === inp.value.trim() || x.nombre.toLowerCase().includes(inp.value.toLowerCase()));
       if (p) { addToCart(p.id); inp.value = ''; posSearch = ''; renderPOSProducts(); }
-      else if (inp.value) showToast('❌ Código no encontrado', 'error');
+      else if (inp.value) showToast('Código no encontrado', 'error');
       inp.focus();
     });
     document.getElementById('clear-cart').addEventListener('click', () => { posCart = []; renderCart() });
@@ -4263,7 +4430,7 @@
       grid.innerHTML = prods.map(p => {
         const disc = p.descuento > 0 ? Math.round(p.precio * (1 - p.descuento / 100)) : p.precio;
         return `<div class="prod-card${p.stock <= 0 ? ' out-stock' : ''}" onclick="addToCart('${p.id}')">
-      <div class="prod-icon">${p.icono || '📦'}</div>
+      <div class="prod-icon"><svg width="24px" height="24px" style="color:#94a3b8;vertical-align:middle;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></div>
       <div class="prod-name">${p.nombre}</div>
       <div class="prod-price">${fmt(disc)}${p.descuento > 0 ? ` <s style="font-size:10px;color:var(--text4)">${fmt(p.precio)}</s>` : ''}</div>
       <div class="prod-stock">${p.stock <= 0 ? 'Sin stock' : p.stock + ' disp.'}</div>
@@ -4302,7 +4469,7 @@
       const list = document.getElementById('pos-cart-list');
       const totals = document.getElementById('pos-totals');
       if (!posCart.length) {
-        list.innerHTML = '<div id="cart-empty"><div class="icon">🛒</div><p>El carrito está vacío.<br>Agrega productos para comenzar.</p></div>';
+        list.innerHTML = '<div id="cart-empty"><div class="icon"><svg width="40px" height="40px" style="color:#cbd5e1;vertical-align:middle;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></div><p>El carrito está vacío.<br>Agrega productos para comenzar.</p></div>';
         totals.style.display = 'none';
         updateProcessBtn();
         return;
@@ -4334,8 +4501,7 @@
 
     function updateProcessBtn() {
       const t = calcTotals().total;
-      const cash = parseFloat(document.getElementById('cash-in').value) || 0;
-      const ok = t > 0 && (payMethod !== 'Efectivo' || cash >= t);
+      const ok = t > 0;
       document.getElementById('process-btn').disabled = !ok;
       document.getElementById('process-btn').textContent = t > 0 ? `Procesar venta — ${fmt(t)} →` : 'Procesar venta →';
     }
@@ -4367,14 +4533,14 @@
         <div class="r-item"><span>Método de pago</span><span>${payMethod}</span></div>
         ${vuelto > 0 ? `<div class="r-change"><span>Vuelto</span><span>${fmt(vuelto)}</span></div>` : ''}
       </div>
-      <button id="receipt-close" onclick="closeReceipt()">✅ Nueva venta</button>`;
+      <button id="receipt-close" onclick="closeReceipt()"><svg width="15px" height="15px" style="color:currentColor;vertical-align:middle;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Nueva venta</button>`;
         document.getElementById('receipt-overlay').classList.add('show');
         posCart = [];
         renderCart();
         // Actualizar stock en inventario local
         await loadPOS();
       } catch (e) {
-        showToast('❌ ' + e.message, 'error');
+        showToast('' + e.message, 'error');
       }
     }
 
@@ -4428,10 +4594,10 @@
       document.getElementById('cdet-user').textContent = '@' + u.usuario;
       document.getElementById('cdet-rol').textContent = rolLabel(u.rol);
       document.getElementById('cdet-estado').innerHTML = u.activo
-        ? '<span style="color:var(--primary);font-weight:700">✅ Activo</span>'
-        : '<span style="color:var(--red);font-weight:700">🔒 Desactivado</span>';
+        ? '<span style="color:var(--primary);font-weight:700"><svg width="14px" height="14px" style="color:var(--primary);vertical-align:middle;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Activo</span>'
+        : '<span style="color:var(--red);font-weight:700"><svg width="14px" height="14px" style="color:var(--red);vertical-align:middle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Desactivado</span>';
       document.getElementById('cdet-fecha').textContent = u.creado || '—';
-      document.getElementById('toggle-ico').textContent = u.activo ? '🔒' : '🔓';
+      document.getElementById('toggle-ico').innerHTML = u.activo ? `<svg width="14px" height="14px" style="color:currentColor;vertical-align:middle;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>` : `<svg width="14px" height="14px" style="color:currentColor;vertical-align:middle;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>`;
       document.getElementById('toggle-lbl').textContent = u.activo ? 'Desactivar acceso' : 'Activar acceso';
     }
 
@@ -4491,10 +4657,10 @@
       try {
         if (cajeroEditing) {
           await api('PATCH', `/usuarios/${cajeroEditing}`, data);
-          showToast('✅ Usuario actualizado', 'ok');
+          showToast('Usuario actualizado', 'ok');
         } else {
           await api('POST', '/usuarios', { ...data, password: pass });
-          showToast('✅ Usuario creado', 'ok');
+          showToast('Usuario creado', 'ok');
         }
         cFormPin = '';
         await loadCajeros();
@@ -4502,7 +4668,7 @@
         document.getElementById('cajero-empty').style.display = '';
         cajeroEditing = null;
       } catch (e) {
-        showToast('❌ ' + e.message, 'error');
+        showToast('' + e.message, 'error');
       }
     }
 
@@ -4512,11 +4678,11 @@
       if (u.id === currentUser.id) { showToast('No puedes desactivarte a ti mismo', 'error'); return; }
       try {
         await api('PATCH', `/usuarios/${u.id}`, { activo: !u.activo });
-        showToast(u.activo ? '🔒 Usuario desactivado' : '✅ Usuario activado', 'ok');
+        showToast(u.activo ? 'Usuario desactivado' : 'Usuario activado', 'ok');
         await loadCajeros();
         cajeroSelect(u.id);
       } catch (e) {
-        showToast('❌ ' + e.message, 'error');
+        showToast('' + e.message, 'error');
       }
     }
 
@@ -4527,13 +4693,13 @@
       if (!confirm(`¿Eliminar a ${u.nombre}? Esta acción no se puede deshacer.`)) return;
       try {
         await api('DELETE', `/usuarios/${u.id}`);
-        showToast('✅ Usuario eliminado', 'ok');
+        showToast('Usuario eliminado', 'ok');
         cajeroSelected = null;
         await loadCajeros();
         document.getElementById('cajero-detalle').style.display = 'none';
         document.getElementById('cajero-empty').style.display = '';
       } catch (e) {
-        showToast('❌ ' + e.message, 'error');
+        showToast('' + e.message, 'error');
       }
     }
 
@@ -4639,7 +4805,7 @@
             <option value="parcial"${o.estado === 'parcial' ? ' selected' : ''}>Parcial</option>
             <option value="cancelada"${o.estado === 'cancelada' ? ' selected' : ''}>Cancelada</option>
           </select>
-          <button class="act-btn act-del" style="margin-left:4px" onclick="deleteOrden('${o.id}')">🗑</button>
+          <button class="act-btn act-del" style="margin-left:4px" onclick="deleteOrden('${o.id}')"><svg width="13px" height="13px" style="color:currentColor;vertical-align:middle;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
         </td>
       </tr>`).join('')}
     </tbody></table>`;
@@ -4649,12 +4815,12 @@
     async function updateOrdenEstado(id, estado) {
       try {
         await api('PATCH', `/ordenes/${id}`, { estado });
-        showToast('✅ Orden actualizada', 'ok');
+        showToast('Orden actualizada', 'ok');
         ordenesList = await api('GET', '/ordenes');
         updateProvKpis();
         renderProvTab();
       } catch (e) {
-        showToast('❌ ' + e.message, 'error');
+        showToast('' + e.message, 'error');
       }
     }
 
@@ -4662,13 +4828,13 @@
       if (!confirm('¿Eliminar esta orden?')) return;
       try {
         await api('DELETE', `/ordenes/${id}`);
-        showToast('✅ Orden eliminada', 'ok');
+        showToast('Orden eliminada', 'ok');
         ordenesList = await api('GET', '/ordenes');
         updateProvKpis();
         renderProveedoresList(document.getElementById('search-prov')?.value || '');
         renderProvTab();
       } catch (e) {
-        showToast('❌ ' + e.message, 'error');
+        showToast('' + e.message, 'error');
       }
     }
 
@@ -4714,16 +4880,16 @@
       try {
         if (provEditing) {
           await api('PATCH', `/proveedores/${provEditing}`, data);
-          showToast('✅ Proveedor actualizado', 'ok');
+          showToast('Proveedor actualizado', 'ok');
         } else {
           await api('POST', '/proveedores', data);
-          showToast('✅ Proveedor creado', 'ok');
+          showToast('Proveedor creado', 'ok');
         }
         closeProvModal();
         await loadProveedores();
         if (provSelected) renderProvTab();
       } catch (e) {
-        showToast('❌ ' + e.message, 'error');
+        showToast('' + e.message, 'error');
       }
     }
 
@@ -4758,14 +4924,14 @@
           estado: document.getElementById('om-estado').value,
           notas: document.getElementById('om-notas').value,
         });
-        showToast('✅ Orden creada', 'ok');
+        showToast('Orden creada', 'ok');
         closeOrderModal();
         ordenesList = await api('GET', '/ordenes');
         updateProvKpis();
         renderProveedoresList(document.getElementById('search-prov')?.value || '');
         if (provSelected && provTab === 'orders') renderProvTab();
       } catch (e) {
-        showToast('❌ ' + e.message, 'error');
+        showToast('' + e.message, 'error');
       }
     }
 
@@ -4790,10 +4956,10 @@
           estado: document.getElementById('tm-estado').value,
           notas: document.getElementById('tm-notas').value || null,
         });
-        showToast('✅ Turno actualizado', 'ok');
+        showToast('Turno actualizado', 'ok');
         closeTurnoModal();
       } catch (e) {
-        showToast('❌ ' + e.message, 'error');
+        showToast('' + e.message, 'error');
       }
     }
 
@@ -4814,7 +4980,7 @@
     const TOUR_STEPS = [
       {
         target: '#brand',
-        icon: '🏪',
+        icon: `<svg width="22px" height="22px" style="color:var(--primary);vertical-align:middle;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
         title: 'FreshMart — Tu sistema',
         desc: 'Este es el panel de administración de <strong>FreshMart</strong>. Desde aquí controlas todas las operaciones de tu negocio: ventas, inventario, personal y proveedores.',
         position: 'bottom',
@@ -4822,7 +4988,7 @@
       },
       {
         target: '[data-view="dashboard"]',
-        icon: '📊',
+        icon: `<svg width="22px" height="22px" style="color:var(--blue);vertical-align:middle;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>`,
         title: 'Panel de Inicio',
         desc: 'El <strong>Dashboard</strong> es tu centro de control. Muestra las ventas del día, alertas de inventario, accesos rápidos y los productos más vendidos en tiempo real.',
         position: 'bottom',
@@ -4830,7 +4996,7 @@
       },
       {
         target: '#dash-kpis',
-        icon: '💡',
+        icon: `<svg width="22px" height="22px" style="color:var(--yellow);vertical-align:middle;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="9" y1="18" x2="15" y2="18"/><line x1="10" y1="22" x2="14" y2="22"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"/></svg>`,
         title: 'Indicadores clave',
         desc: 'Los <strong>KPIs</strong> te muestran de un vistazo las ventas del día, total de productos, alertas de stock crítico y órdenes pendientes. Se actualizan automáticamente.',
         position: 'bottom',
@@ -4838,7 +5004,7 @@
       },
       {
         target: '[data-view="pos"]',
-        icon: '🛒',
+        icon: `<svg width="22px" height="22px" style="color:var(--primary);vertical-align:middle;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>`,
         title: 'Punto de Venta',
         desc: 'El módulo de <strong>Punto de Venta</strong> permite registrar ventas rápidamente. Busca productos por nombre o código, selecciona cantidades y procesa el cobro al cliente.',
         position: 'bottom',
@@ -4846,7 +5012,7 @@
       },
       {
         target: '[data-view="inventario"]',
-        icon: '📦',
+        icon: `<svg width="22px" height="22px" style="color:var(--blue);vertical-align:middle;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>`,
         title: 'Control de Inventario',
         desc: 'En <strong>Inventario</strong> gestionas todos tus productos: stock, precios, fechas de vencimiento y categorías. Puedes filtrar, buscar y exportar el listado completo.',
         position: 'bottom',
@@ -4854,7 +5020,7 @@
       },
       {
         target: '[data-view="cajeros"]',
-        icon: '👥',
+        icon: `<svg width="22px" height="22px" style="color:var(--purple);vertical-align:middle;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
         title: 'Gestión de Personal',
         desc: 'La sección de <strong>Personal</strong> te permite administrar cajeros y supervisores: ver sus turnos activos, horarios de entrada y salida, y el estado de cada empleado.',
         position: 'bottom',
@@ -4862,7 +5028,7 @@
       },
       {
         target: '[data-view="proveedores"]',
-        icon: '🚚',
+        icon: `<svg width="22px" height="22px" style="color:var(--orange);vertical-align:middle;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>`,
         title: 'Proveedores y Órdenes',
         desc: 'En <strong>Proveedores</strong> registras tus distribuidores, creas órdenes de compra, haces seguimiento de entregas y controlas el historial de compras por proveedor.',
         position: 'bottom',
@@ -4870,7 +5036,7 @@
       },
       {
         target: '#user-pill',
-        icon: '👤',
+        icon: `<svg width="22px" height="22px" style="color:var(--text3);vertical-align:middle;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
         title: 'Tu perfil de usuario',
         desc: 'Aquí aparece tu <strong>nombre y rol</strong> en el sistema. Cada usuario tiene permisos según su rol: Administrador ve todo, Supervisor gestiona operaciones, Cajero solo vende.',
         position: 'bottom-left',
@@ -4878,19 +5044,23 @@
       },
       {
         target: '#logout-btn',
-        icon: '🔒',
+        icon: `<svg width="22px" height="22px" style="color:var(--text3);vertical-align:middle;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`,
         title: 'Cierre de sesión seguro',
         desc: 'Cuando termines tu turno, usa el botón <strong>Salir</strong> para cerrar tu sesión de forma segura. Así proteges los datos del negocio y tu cuenta personal.',
         position: 'bottom-left',
         view: null
       }
     ];
+    window.TOUR_STEPS = TOUR_STEPS;
 
     let tourStep = 0;
     let tourActive = false;
     let tourHL = null;
     let tourTooltip = null;
     let tourArrow = null;
+
+    const TOUR_SEEN_KEY = 'fm_tour_seen';
+    window.TOUR_SEEN_KEY = TOUR_SEEN_KEY;
 
     function startTour() {
       // Si el app no está visible todavía, salir
@@ -4900,10 +5070,12 @@
 
     function closeTourWelcome() {
       document.getElementById('tour-welcome').classList.remove('show');
+      // Marcar como visto cuando el usuario cierra sin hacer el tour
+      localStorage.setItem(TOUR_SEEN_KEY, '1');
     }
 
     function beginTourSteps() {
-      closeTourWelcome();
+      document.getElementById('tour-welcome').classList.remove('show');
       tourStep = 0;
       tourActive = true;
       tourHL = document.getElementById('tour-hl');
@@ -4936,7 +5108,7 @@
         tourHL.style.height = (rect.height + pad * 2) + 'px';
 
         // Rellenar contenido
-        document.getElementById('tip-icon').textContent = step.icon;
+        document.getElementById('tip-icon').innerHTML = step.icon;
         document.getElementById('tip-title').textContent = step.title;
         document.getElementById('tip-step').textContent = `Paso ${idx + 1} de ${TOUR_STEPS.length}`;
         document.getElementById('tip-desc').innerHTML = step.desc;
@@ -5040,26 +5212,23 @@
     function endTour() {
       tourActive = false;
       document.getElementById('tour-overlay').classList.remove('active');
-      // Mostrar botón FAB y botón en topbar
-      const fab = document.getElementById('tour-fab');
-      fab.classList.remove('bounce');
-      void fab.offsetWidth;
-      fab.classList.add('bounce');
-      showToast('✅ Recorrido completado. ¡Listo para usar FreshMart!', 'ok');
+      // Marcar tour como completado
+      localStorage.setItem(TOUR_SEEN_KEY, '1');
+      showToast('Recorrido completado. ¡Listo para usar FreshMart!', 'ok');
     }
 
     function handleBackdropClick() {
       // El click en el backdrop NO cierra el tour (UX intencional)
     }
 
-    // Mostrar tour al hacer login y mostrar botones de tour
+    // Mostrar tour al hacer login y mostrar botón de tour
     function showTourAfterLogin() {
-      const fab = document.getElementById('tour-fab');
       const topBtn = document.getElementById('tour-topbar-btn');
-      fab.classList.add('visible');
       topBtn.style.display = 'flex';
-      // Auto-lanzar bienvenida en primer login
-      setTimeout(() => startTour(), 800);
+      // Auto-lanzar bienvenida solo la primera vez
+      if (!localStorage.getItem(TOUR_SEEN_KEY)) {
+        setTimeout(() => startTour(), 800);
+      }
     }
 
     // Teclado: ESC para cerrar, flechas para navegar
@@ -5069,7 +5238,7 @@
       if (e.key === 'ArrowRight' || e.key === 'Enter') tourNext();
       if (e.key === 'ArrowLeft') tourPrev();
     });
-  
+
   </script>
 </body>
 

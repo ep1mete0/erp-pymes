@@ -1,6 +1,8 @@
+node_modules
 venv
 .venv
 __pycache__
-erp.db
-.db
 database.db
+.pytest_cache
+__test__frontend.js
+package-lock.json

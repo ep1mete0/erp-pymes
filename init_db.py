@@ -17,7 +17,7 @@ def hash_password(password: str) -> str:
     return hashlib.sha256(password.encode()).hexdigest()
 
 
-def init_database():
+def main():
     os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
@@ -281,3 +281,6 @@ def init_database():
     print("━" * 50)
     print("  Acceso admin → usuario: admin  |  contraseña: admin123")
     print("━" * 50)
+
+if __name__ == "__main__":
+    main()

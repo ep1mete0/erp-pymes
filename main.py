@@ -387,6 +387,21 @@ def delete_usuario(uid: int, admin=Depends(require_admin)):
         raise HTTPException(
             status_code=400, detail="No puedes eliminar tu propia cuenta")
     with get_db() as conn:
+        # Verificar que el usuario existe
+        if not conn.execute("SELECT id FROM usuarios WHERE id=?", (uid,)).fetchone():
+            raise HTTPException(status_code=404, detail="Usuario no encontrado")
+        # Bloquear si tiene ventas (registros contables, no se borran)
+        ventas = conn.execute(
+            "SELECT COUNT(*) FROM ventas WHERE cajero_id=?", (uid,)
+        ).fetchone()[0]
+        if ventas > 0:
+            raise HTTPException(
+                status_code=400,
+                detail=f"No se puede eliminar: el usuario tiene {ventas} venta(s) registrada(s). Desactívalo en su lugar."
+            )
+        # Eliminar turnos asociados (datos operativos, sí se pueden borrar)
+        conn.execute("DELETE FROM turnos WHERE cajero_id=?", (uid,))
+        # Ahora sí eliminar el usuario sin violar FK
         conn.execute("DELETE FROM usuarios WHERE id=?", (uid,))
     return {"message": "Usuario eliminado"}
 
