@@ -389,7 +389,8 @@ def delete_usuario(uid: int, admin=Depends(require_admin)):
     with get_db() as conn:
         # Verificar que el usuario existe
         if not conn.execute("SELECT id FROM usuarios WHERE id=?", (uid,)).fetchone():
-            raise HTTPException(status_code=404, detail="Usuario no encontrado")
+            raise HTTPException(
+                status_code=404, detail="Usuario no encontrado")
         # Bloquear si tiene ventas (registros contables, no se borran)
         ventas = conn.execute(
             "SELECT COUNT(*) FROM ventas WHERE cajero_id=?", (uid,)
@@ -818,6 +819,169 @@ def delete_turno(tid: int, user=Depends(require_supervisor)):
     with get_db() as conn:
         conn.execute("DELETE FROM turnos WHERE id=?", (tid,))
     return {"message": "Turno eliminado"}
+
+# ══════════════════════════════════════════════════════════════════
+# HISTORIAL DE VENTAS
+# ══════════════════════════════════════════════════════════════════
+
+
+@app.get("/api/sales/history")
+def sales_history(
+    period: Optional[str] = None,
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None,
+    page: int = 1,
+    per_page: int = 20,
+    user=Depends(require_supervisor)
+):
+    """
+    Retorna historial de ventas con filtros opcionales.
+    - period: 'today' | 'week' | 'month'
+    - start_date / end_date: rango personalizado YYYY-MM-DD
+    - page / per_page: paginación
+    """
+    # Validaciones
+    if page < 1:
+        raise HTTPException(status_code=400, detail="page debe ser >= 1")
+    if per_page < 1 or per_page > 200:
+        raise HTTPException(
+            status_code=400, detail="per_page debe estar entre 1 y 200")
+    if period and period not in ("today", "week", "month"):
+        raise HTTPException(
+            status_code=400, detail="period debe ser 'today', 'week' o 'month'")
+    if start_date:
+        try:
+            datetime.strptime(start_date, "%Y-%m-%d")
+        except ValueError:
+            raise HTTPException(
+                status_code=400, detail="start_date debe tener formato YYYY-MM-DD")
+    if end_date:
+        try:
+            datetime.strptime(end_date, "%Y-%m-%d")
+        except ValueError:
+            raise HTTPException(
+                status_code=400, detail="end_date debe tener formato YYYY-MM-DD")
+
+    # Construir filtro de fecha
+    date_filter = ""
+    params: list = []
+
+    if period == "today":
+        date_filter = " AND date(v.creado) = date('now')"
+    elif period == "week":
+        date_filter = " AND date(v.creado) >= date('now', '-6 days')"
+    elif period == "month":
+        date_filter = " AND date(v.creado) >= date('now', 'start of month')"
+    elif start_date and end_date:
+        date_filter = " AND date(v.creado) BETWEEN ? AND ?"
+        params += [start_date, end_date]
+    elif start_date:
+        date_filter = " AND date(v.creado) >= ?"
+        params.append(start_date)
+    elif end_date:
+        date_filter = " AND date(v.creado) <= ?"
+        params.append(end_date)
+
+    base_sql = f"""
+        FROM ventas v
+        JOIN usuarios u ON v.cajero_id = u.id
+        WHERE 1=1{date_filter}
+    """
+
+    with get_db() as conn:
+        # Total de registros para paginación
+        total_count = conn.execute(
+            f"SELECT COUNT(*) {base_sql}", params
+        ).fetchone()[0]
+
+        offset = (page - 1) * per_page
+        rows = conn.execute(
+            f"""
+            SELECT
+                v.id,
+                v.total,
+                v.metodo_pago,
+                v.creado,
+                v.cajero_id,
+                u.nombre  AS cajero_nombre,
+                (SELECT COUNT(*) FROM detalle_ventas dv WHERE dv.venta_id = v.id) AS num_productos
+            {base_sql}
+            ORDER BY v.creado DESC
+            LIMIT ? OFFSET ?
+            """,
+            params + [per_page, offset]
+        ).fetchall()
+
+    ventas = rows_to_list(rows)
+
+    return {
+        "success": True,
+        "data": ventas,
+        "pagination": {
+            "page": page,
+            "per_page": per_page,
+            "total": total_count,
+            "pages": max(1, -(-total_count // per_page))  # ceil division
+        }
+    }
+
+
+@app.get("/api/sales/summary")
+def sales_summary(
+    period: Optional[str] = None,
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None,
+    user=Depends(require_supervisor)
+):
+    """
+    Retorna resumen: total_vendido, cantidad_ventas, ticket_promedio.
+    Acepta los mismos filtros que /api/sales/history.
+    """
+    if period and period not in ("today", "week", "month"):
+        raise HTTPException(
+            status_code=400, detail="period debe ser 'today', 'week' o 'month'")
+
+    date_filter = ""
+    params: list = []
+
+    if period == "today":
+        date_filter = " AND date(creado) = date('now')"
+    elif period == "week":
+        date_filter = " AND date(creado) >= date('now', '-6 days')"
+    elif period == "month":
+        date_filter = " AND date(creado) >= date('now', 'start of month')"
+    elif start_date and end_date:
+        date_filter = " AND date(creado) BETWEEN ? AND ?"
+        params += [start_date, end_date]
+    elif start_date:
+        date_filter = " AND date(creado) >= ?"
+        params.append(start_date)
+    elif end_date:
+        date_filter = " AND date(creado) <= ?"
+        params.append(end_date)
+
+    with get_db() as conn:
+        row = conn.execute(
+            f"""
+            SELECT
+                COALESCE(SUM(total), 0)   AS total_vendido,
+                COUNT(*)                  AS cantidad_ventas,
+                COALESCE(AVG(total), 0)   AS ticket_promedio
+            FROM ventas
+            WHERE 1=1{date_filter}
+            """,
+            params
+        ).fetchone()
+
+    return {
+        "success": True,
+        "data": {
+            "total_vendido": row["total_vendido"],
+            "cantidad_ventas": row["cantidad_ventas"],
+            "ticket_promedio": round(row["ticket_promedio"], 0)
+        }
+    }
+
 
 # ══════════════════════════════════════════════════════════════════
 # DASHBOARD / ESTADÍSTICAS

@@ -275,12 +275,69 @@ def main():
         )
         print(f"  ✅ {len(turnos)} turnos creados")
 
+    # ─── VENTAS DE EJEMPLO ───────────────────────────────────────
+    if c.execute("SELECT COUNT(*) FROM ventas").fetchone()[0] == 0:
+        print("📥 Insertando ventas de ejemplo (50 ventas)...")
+        import random
+        from datetime import timedelta
+
+        cajeros_ids = [3, 4]  # rfuentes, ptorres
+        metodos = ["Efectivo", "Tarjeta", "Transferencia"]
+        productos_seed = [
+            ("7801005001", "Leche Entera 1L",      1290),
+            ("7801005002", "Yogur Frutilla 165g",    650),
+            ("7801007001", "Pan Molde 550g",         1890),
+            ("7801007002", "Hallulla x6",             990),
+            ("7801009001", "Manzana Royal Gala kg",  1490),
+            ("7801009002", "Plátano kg",              890),
+            ("7801009003", "Tomate kg",              1190),
+            ("7801013001", "Coca-Cola 1.5L",         1490),
+            ("7801013002", "Agua Mineral 1.5L",       590),
+            ("7801015001", "Arroz Grado 1 1kg",      1390),
+            ("7801015002", "Fideos Spaghetti 400g",   990),
+            ("7801017002", "Papel Higiénico x4",     2190),
+        ]
+
+        today = date.today()
+        random.seed(42)
+
+        for i in range(50):
+            dias_atras = random.randint(0, 29)
+            fecha_venta = today - timedelta(days=dias_atras)
+            hora = f"{random.randint(8, 20):02d}:{random.randint(0, 59):02d}:{random.randint(0, 59):02d}"
+            creado_str = f"{fecha_venta.isoformat()} {hora}"
+
+            cajero_id = random.choice(cajeros_ids)
+            metodo = random.choice(metodos)
+
+            items = random.sample(productos_seed, k=random.randint(1, 4))
+            total = 0.0
+            detalle_rows = []
+            for pid, pnombre, pprecio in items:
+                qty = random.randint(1, 3)
+                total += pprecio * qty
+                detalle_rows.append((pid, pnombre, qty, pprecio))
+
+            c.execute(
+                "INSERT INTO ventas (cajero_id, total, metodo_pago, creado) VALUES (?,?,?,?)",
+                (cajero_id, round(total, 0), metodo, creado_str)
+            )
+            venta_id = c.execute("SELECT last_insert_rowid()").fetchone()[0]
+            for pid, pnombre, qty, pprecio in detalle_rows:
+                c.execute(
+                    "INSERT INTO detalle_ventas (venta_id,producto_id,nombre,cantidad,precio,descuento) VALUES (?,?,?,?,?,?)",
+                    (venta_id, pid, pnombre, qty, pprecio, 0)
+                )
+
+        print("  ✅ 50 ventas de ejemplo creadas")
+
     conn.commit()
     conn.close()
     print("\n🎉 Base de datos inicializada correctamente en:", DB_PATH)
     print("━" * 50)
     print("  Acceso admin → usuario: admin  |  contraseña: admin123")
     print("━" * 50)
+
 
 if __name__ == "__main__":
     main()
