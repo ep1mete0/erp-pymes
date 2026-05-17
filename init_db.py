@@ -25,14 +25,18 @@ def main():
     # ─── USUARIOS ───────────────────────────────────────────
     c.execute("""
     CREATE TABLE IF NOT EXISTS usuarios (
-        id        INTEGER PRIMARY KEY AUTOINCREMENT,
-        nombre    TEXT    NOT NULL,
-        usuario   TEXT    NOT NULL UNIQUE,
-        password  TEXT    NOT NULL,
-        rol       TEXT    NOT NULL CHECK(rol IN ('admin','supervisor','cajero')),
-        pin       TEXT    NOT NULL DEFAULT '0000',
-        activo    INTEGER NOT NULL DEFAULT 1,
-        creado    TEXT    NOT NULL DEFAULT (date('now'))
+        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        nombre      TEXT    NOT NULL,
+        usuario     TEXT    NOT NULL UNIQUE,
+        password    TEXT    NOT NULL,
+        rol         TEXT    NOT NULL CHECK(rol IN ('admin','supervisor','cajero')),
+        pin         TEXT    NOT NULL DEFAULT '0000',
+        activo      INTEGER NOT NULL DEFAULT 1,
+        creado      TEXT    NOT NULL DEFAULT (date('now')),
+        email       TEXT,
+        telefono    TEXT,
+        notif_pref  TEXT    NOT NULL DEFAULT 'email'
+                    CHECK(notif_pref IN ('email','whatsapp','ambos'))
     )
     """)
 
@@ -125,6 +129,20 @@ def main():
         estado      TEXT    NOT NULL DEFAULT 'activo'
                     CHECK(estado IN ('activo','cerrado','ausente')),
         notas       TEXT
+    )
+    """)
+
+    # ─── LOG DE NOTIFICACIONES ───────────────────────────────
+    c.execute("""
+    CREATE TABLE IF NOT EXISTS notificaciones_log (
+        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        usuario_id  INTEGER NOT NULL REFERENCES usuarios(id),
+        producto_id TEXT,
+        canal       TEXT NOT NULL,
+        destino     TEXT,
+        mensaje     TEXT,
+        estado      TEXT NOT NULL DEFAULT 'enviado',
+        creado      TEXT NOT NULL DEFAULT (datetime('now'))
     )
     """)
 

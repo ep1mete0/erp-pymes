@@ -18,12 +18,90 @@ import re
 from datetime import datetime, timedelta, date
 from contextlib import contextmanager
 
+from notifications import (
+    NOTIF_PREFS,
+    normalize_cl_phone,
+    notify_user_stock_alert,
+    should_notify_stock_crossing,
+    validate_cl_phone,
+    validate_email,
+)
+
 # ─── CONFIG ──────────────────────────────────────────────────────
 SECRET_KEY = os.getenv(
     "FRESHMART_SECRET", "freshmart-secret-key-2026-!change-in-prod")
 ALGORITHM = "HS256"
 TOKEN_EXP = 60 * 12  # 12 horas en minutos
 DB_PATH = "database.db"
+
+PROFILE_FIELDS = (
+    "id", "nombre", "usuario", "rol", "pin", "activo", "creado",
+    "email", "telefono", "notif_pref",
+)
+
+
+def migrate_db():
+    """Añade columnas/tablas nuevas sin romper bases de datos existentes."""
+    with get_db() as conn:
+        cols = {row[1] for row in conn.execute("PRAGMA table_info(usuarios)").fetchall()}
+        if "email" not in cols:
+            conn.execute("ALTER TABLE usuarios ADD COLUMN email TEXT")
+        if "telefono" not in cols:
+            conn.execute("ALTER TABLE usuarios ADD COLUMN telefono TEXT")
+        if "notif_pref" not in cols:
+            conn.execute(
+                "ALTER TABLE usuarios ADD COLUMN notif_pref TEXT NOT NULL DEFAULT 'email'"
+            )
+        conn.execute("""
+        CREATE TABLE IF NOT EXISTS notificaciones_log (
+            id          INTEGER PRIMARY KEY AUTOINCREMENT,
+            usuario_id  INTEGER NOT NULL REFERENCES usuarios(id),
+            producto_id TEXT,
+            canal       TEXT NOT NULL,
+            destino     TEXT,
+            mensaje     TEXT,
+            estado      TEXT NOT NULL DEFAULT 'enviado',
+            creado      TEXT NOT NULL DEFAULT (datetime('now'))
+        )
+        """)
+
+
+def user_public_dict(user: dict) -> dict:
+    if not user:
+        return {}
+    tel = user.get("telefono")
+    return {
+        "id": user["id"],
+        "nombre": user["nombre"],
+        "usuario": user["usuario"],
+        "rol": user["rol"],
+        "activo": bool(user["activo"]),
+        "email": user.get("email") or "",
+        "telefono": tel or "",
+        "telefono_e164": normalize_cl_phone(tel) or "",
+        "notif_pref": user.get("notif_pref") or "email",
+    }
+
+
+def dispatch_stock_alerts(conn, producto_id: str, old_stock: int, new_stock: int):
+    row = conn.execute(
+        "SELECT id, nombre, stock, stock_min FROM productos WHERE id=? AND activo=1",
+        (producto_id,),
+    ).fetchone()
+    if not row:
+        return
+    prod = dict(row)
+    prod["stock"] = new_stock
+    if not should_notify_stock_crossing(old_stock, new_stock, prod["stock_min"]):
+        return
+    recipients = conn.execute("""
+        SELECT id, nombre, email, telefono, notif_pref
+        FROM usuarios
+        WHERE activo=1 AND rol IN ('admin', 'supervisor')
+    """).fetchall()
+    for u in recipients:
+        notify_user_stock_alert(dict(u), prod, conn)
+
 
 app = FastAPI(title="FreshMart ERP API", version="1.0.0")
 security = HTTPBearer()
@@ -137,6 +215,13 @@ class LoginRequest(BaseModel):
 class PasswordChangeRequest(BaseModel):
     current_password: str
     new_password: str
+
+
+class ProfileUpdate(BaseModel):
+    nombre: Optional[str] = None
+    email: Optional[str] = None
+    telefono: Optional[str] = None
+    notif_pref: Optional[str] = None
 
 
 class UsuarioCreate(BaseModel):
@@ -286,19 +371,77 @@ def login(data: LoginRequest):
     token = create_token(user["id"], user["rol"])
     return {
         "token": token,
-        "user": {
-            "id": user["id"],
-            "nombre": user["nombre"],
-            "usuario": user["usuario"],
-            "rol": user["rol"],
-            "activo": bool(user["activo"]),
-        }
+        "user": user_public_dict(user),
     }
 
 
 @app.get("/api/auth/me")
 def me(user=Depends(get_current_user)):
-    return {k: v for k, v in user.items() if k != "password"}
+    return user_public_dict(user)
+
+
+@app.patch("/api/auth/profile")
+def update_profile(data: ProfileUpdate, user=Depends(get_current_user)):
+    updates = {}
+    if data.nombre is not None:
+        nombre = data.nombre.strip()
+        if len(nombre) < 2:
+            raise HTTPException(
+                status_code=400, detail="El nombre debe tener al menos 2 caracteres")
+        updates["nombre"] = nombre
+    if data.email is not None:
+        email = data.email.strip()
+        if email and not validate_email(email):
+            raise HTTPException(status_code=400, detail="Correo electrónico inválido")
+        updates["email"] = email or None
+    if data.telefono is not None:
+        tel_raw = data.telefono.strip()
+        if tel_raw:
+            if not validate_cl_phone(tel_raw):
+                raise HTTPException(
+                    status_code=400,
+                    detail="Celular inválido. Usa formato chileno: +56 9 XXXX XXXX",
+                )
+            updates["telefono"] = normalize_cl_phone(tel_raw)
+        else:
+            updates["telefono"] = None
+    if data.notif_pref is not None:
+        pref = data.notif_pref.strip().lower()
+        if pref not in NOTIF_PREFS:
+            raise HTTPException(
+                status_code=400,
+                detail="Preferencia debe ser: email, whatsapp o ambos",
+            )
+        updates["notif_pref"] = pref
+
+    if not updates:
+        raise HTTPException(
+            status_code=400, detail="No hay campos para actualizar")
+
+    pref = updates.get("notif_pref", user.get("notif_pref") or "email")
+    email = updates.get("email", user.get("email"))
+    telefono = updates.get("telefono", user.get("telefono"))
+    if pref in ("email", "ambos") and not (email or "").strip():
+        raise HTTPException(
+            status_code=400,
+            detail="Indica un correo para recibir notificaciones por email",
+        )
+    if pref in ("whatsapp", "ambos") and not telefono:
+        raise HTTPException(
+            status_code=400,
+            detail="Indica un celular chileno (+56 9…) para notificaciones por WhatsApp",
+        )
+
+    set_clause = ", ".join(f"{k}=?" for k in updates)
+    with get_db() as conn:
+        conn.execute(
+            f"UPDATE usuarios SET {set_clause} WHERE id=?",
+            (*updates.values(), user["id"]),
+        )
+        row = conn.execute(
+            "SELECT * FROM usuarios WHERE id=?", (user["id"],)
+        ).fetchone()
+    return {"message": "Perfil actualizado", "user": user_public_dict(dict(row))}
 
 
 @app.post("/api/auth/change-password")
@@ -493,8 +636,17 @@ def update_producto(pid: str, data: ProductoUpdate, user=Depends(require_supervi
             status_code=400, detail="No hay campos para actualizar")
     set_clause = ", ".join(f"{k}=?" for k in updates)
     with get_db() as conn:
+        old_row = conn.execute(
+            "SELECT stock, stock_min FROM productos WHERE id=?", (pid,)
+        ).fetchone()
+        if not old_row:
+            raise HTTPException(status_code=404, detail="Producto no encontrado")
+        old_stock = old_row["stock"]
         conn.execute(
             f"UPDATE productos SET {set_clause} WHERE id=?", (*updates.values(), pid))
+        new_stock = updates.get("stock", old_stock)
+        if "stock" in updates:
+            dispatch_stock_alerts(conn, pid, old_stock, new_stock)
     return {"message": "Producto actualizado"}
 
 
@@ -711,6 +863,7 @@ def list_ventas(fecha: Optional[str] = None, user=Depends(require_supervisor)):
 def create_venta(data: VentaCreate, user=Depends(get_current_user)):
     with get_db() as conn:
         # Verificar stock de todos los items primero
+        stock_before = {}
         for item in data.items:
             prod = conn.execute(
                 "SELECT stock, nombre FROM productos WHERE id=? AND activo=1", (
@@ -724,6 +877,7 @@ def create_venta(data: VentaCreate, user=Depends(get_current_user)):
                     status_code=400,
                     detail=f"Stock insuficiente para '{prod['nombre']}'. Disponible: {prod['stock']}"
                 )
+            stock_before[item.producto_id] = prod["stock"]
         # Insertar venta
         conn.execute(
             "INSERT INTO ventas (cajero_id, total, metodo_pago) VALUES (?,?,?)",
@@ -741,6 +895,9 @@ def create_venta(data: VentaCreate, user=Depends(get_current_user)):
                 "UPDATE productos SET stock = stock - ? WHERE id=?",
                 (item.cantidad, item.producto_id)
             )
+            old_s = stock_before[item.producto_id]
+            new_s = old_s - item.cantidad
+            dispatch_stock_alerts(conn, item.producto_id, old_s, new_s)
     return {"id": venta_id, "message": "Venta procesada"}
 
 
@@ -1035,3 +1192,6 @@ def dashboard(user=Depends(get_current_user)):
 @app.get("/api/health")
 def health():
     return {"status": "ok", "version": "1.0.0"}
+
+
+migrate_db()
