@@ -15,17 +15,12 @@ import hashlib
 import jwt
 import os
 import re
+import smtplib
+import threading
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 from datetime import datetime, timedelta, date
 from contextlib import contextmanager
-
-from notifications import (
-    NOTIF_PREFS,
-    normalize_cl_phone,
-    notify_user_stock_alert,
-    should_notify_stock_crossing,
-    validate_cl_phone,
-    validate_email,
-)
 
 # ─── CONFIG ──────────────────────────────────────────────────────
 SECRET_KEY = os.getenv(
@@ -33,75 +28,6 @@ SECRET_KEY = os.getenv(
 ALGORITHM = "HS256"
 TOKEN_EXP = 60 * 12  # 12 horas en minutos
 DB_PATH = "database.db"
-
-PROFILE_FIELDS = (
-    "id", "nombre", "usuario", "rol", "pin", "activo", "creado",
-    "email", "telefono", "notif_pref",
-)
-
-
-def migrate_db():
-    """Añade columnas/tablas nuevas sin romper bases de datos existentes."""
-    with get_db() as conn:
-        cols = {row[1] for row in conn.execute("PRAGMA table_info(usuarios)").fetchall()}
-        if "email" not in cols:
-            conn.execute("ALTER TABLE usuarios ADD COLUMN email TEXT")
-        if "telefono" not in cols:
-            conn.execute("ALTER TABLE usuarios ADD COLUMN telefono TEXT")
-        if "notif_pref" not in cols:
-            conn.execute(
-                "ALTER TABLE usuarios ADD COLUMN notif_pref TEXT NOT NULL DEFAULT 'email'"
-            )
-        conn.execute("""
-        CREATE TABLE IF NOT EXISTS notificaciones_log (
-            id          INTEGER PRIMARY KEY AUTOINCREMENT,
-            usuario_id  INTEGER NOT NULL REFERENCES usuarios(id),
-            producto_id TEXT,
-            canal       TEXT NOT NULL,
-            destino     TEXT,
-            mensaje     TEXT,
-            estado      TEXT NOT NULL DEFAULT 'enviado',
-            creado      TEXT NOT NULL DEFAULT (datetime('now'))
-        )
-        """)
-
-
-def user_public_dict(user: dict) -> dict:
-    if not user:
-        return {}
-    tel = user.get("telefono")
-    return {
-        "id": user["id"],
-        "nombre": user["nombre"],
-        "usuario": user["usuario"],
-        "rol": user["rol"],
-        "activo": bool(user["activo"]),
-        "email": user.get("email") or "",
-        "telefono": tel or "",
-        "telefono_e164": normalize_cl_phone(tel) or "",
-        "notif_pref": user.get("notif_pref") or "email",
-    }
-
-
-def dispatch_stock_alerts(conn, producto_id: str, old_stock: int, new_stock: int):
-    row = conn.execute(
-        "SELECT id, nombre, stock, stock_min FROM productos WHERE id=? AND activo=1",
-        (producto_id,),
-    ).fetchone()
-    if not row:
-        return
-    prod = dict(row)
-    prod["stock"] = new_stock
-    if not should_notify_stock_crossing(old_stock, new_stock, prod["stock_min"]):
-        return
-    recipients = conn.execute("""
-        SELECT id, nombre, email, telefono, notif_pref
-        FROM usuarios
-        WHERE activo=1 AND rol IN ('admin', 'supervisor')
-    """).fetchall()
-    for u in recipients:
-        notify_user_stock_alert(dict(u), prod, conn)
-
 
 app = FastAPI(title="FreshMart ERP API", version="1.0.0")
 security = HTTPBearer()
@@ -152,6 +78,139 @@ def row_to_dict(row) -> dict:
 
 def rows_to_list(rows) -> list:
     return [dict(r) for r in rows]
+
+
+# ─── CONFIG HELPERS ──────────────────────────────────────────────
+
+def get_config(conn, clave: str) -> str:
+    """Lee un valor de la tabla config. Retorna '' si no existe."""
+    row = conn.execute(
+        "SELECT valor FROM config WHERE clave=?", (clave,)
+    ).fetchone()
+    return row["valor"] if row else ""
+
+
+def set_config(conn, clave: str, valor: str):
+    conn.execute(
+        "INSERT INTO config (clave, valor) VALUES (?,?) "
+        "ON CONFLICT(clave) DO UPDATE SET valor=excluded.valor",
+        (clave, valor)
+    )
+
+
+# ─── EMAIL ───────────────────────────────────────────────────────
+
+def _build_stock_email(productos: list) -> tuple[str, str]:
+    """Construye subject y body HTML para alerta de stock mínimo."""
+    subject = f"⚠️ FreshMart — {len(productos)} producto(s) bajo stock mínimo"
+
+    rows_html = "".join(
+        f"""
+        <tr>
+          <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb">{p['icono']} {p['nombre']}</td>
+          <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;text-align:center">{p['categoria']}</td>
+          <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;text-align:center;color:#ef4444;font-weight:700">{p['stock']}</td>
+          <td style="padding:10px 14px;border-bottom:1px solid #e5e7eb;text-align:center;color:#6b7280">{p['stock_min']}</td>
+        </tr>"""
+        for p in productos
+    )
+
+    body = f"""
+    <div style="font-family:'Segoe UI',Arial,sans-serif;max-width:600px;margin:0 auto;background:#f9fafb;padding:24px">
+      <div style="background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.08)">
+        <!-- Header -->
+        <div style="background:#16a34a;padding:24px 28px">
+          <h1 style="margin:0;color:#fff;font-size:20px;font-weight:800">🛒 FreshMart ERP</h1>
+          <p style="margin:6px 0 0;color:#dcfce7;font-size:14px">Alerta de stock mínimo</p>
+        </div>
+        <!-- Body -->
+        <div style="padding:24px 28px">
+          <p style="color:#374151;font-size:15px;margin:0 0 20px">
+            Los siguientes productos han alcanzado o superado su límite de
+            <strong>stock mínimo</strong> y requieren reposición inmediata:
+          </p>
+          <table style="width:100%;border-collapse:collapse;font-size:13px">
+            <thead>
+              <tr style="background:#f3f4f6">
+                <th style="padding:10px 14px;text-align:left;color:#6b7280;font-weight:600">Producto</th>
+                <th style="padding:10px 14px;text-align:center;color:#6b7280;font-weight:600">Categoría</th>
+                <th style="padding:10px 14px;text-align:center;color:#6b7280;font-weight:600">Stock actual</th>
+                <th style="padding:10px 14px;text-align:center;color:#6b7280;font-weight:600">Stock mínimo</th>
+              </tr>
+            </thead>
+            <tbody>{rows_html}</tbody>
+          </table>
+          <div style="margin-top:24px;padding:14px 18px;background:#fef9c3;border:1px solid #fde047;border-radius:8px">
+            <p style="margin:0;color:#713f12;font-size:13px">
+              ⚡ Ingresa al sistema y utiliza la sección <strong>Inventario → Ingresar stock</strong>
+              o crea una nueva orden en <strong>Proveedores</strong> para reponer estos productos.
+            </p>
+          </div>
+        </div>
+        <!-- Footer -->
+        <div style="padding:16px 28px;background:#f3f4f6;border-top:1px solid #e5e7eb">
+          <p style="margin:0;color:#9ca3af;font-size:12px">
+            Este correo fue enviado automáticamente por FreshMart ERP ·
+            {datetime.now().strftime('%d/%m/%Y %H:%M')}
+          </p>
+        </div>
+      </div>
+    </div>
+    """
+    return subject, body
+
+
+def send_email(smtp_email: str, smtp_app_password: str, to_email: str,
+               subject: str, body_html: str):
+    """Envía un email via Gmail SMTP (puerto 587 + TLS). Lanza excepción si falla."""
+    msg = MIMEMultipart("alternative")
+    msg["Subject"] = subject
+    msg["From"] = f"FreshMart ERP <{smtp_email}>"
+    msg["To"] = to_email
+    msg.attach(MIMEText(body_html, "html", "utf-8"))
+
+    with smtplib.SMTP("smtp.gmail.com", 587, timeout=15) as server:
+        server.ehlo()
+        server.starttls()
+        server.login(smtp_email, smtp_app_password)
+        server.sendmail(smtp_email, to_email, msg.as_string())
+
+
+def _check_and_notify_stock(productos_ids: list):
+    """
+    Revisa si alguno de los productos_ids quedó bajo stock mínimo tras una venta.
+    Si hay credenciales SMTP configuradas, envía email en un hilo separado
+    (no bloquea la respuesta al cajero).
+    """
+    with get_db() as conn:
+        smtp_email = get_config(conn, "smtp_email")
+        smtp_pass = get_config(conn, "smtp_app_password")
+        notif_dest = get_config(conn, "notif_email_admin")
+
+        if not (smtp_email and smtp_pass and notif_dest):
+            return  # Sin config → silencioso
+
+        placeholders = ",".join("?" * len(productos_ids))
+        productos_bajos = rows_to_list(conn.execute(
+            f"""SELECT id, nombre, categoria, icono, stock, stock_min
+                FROM productos
+                WHERE id IN ({placeholders})
+                  AND activo=1
+                  AND stock <= stock_min""",
+            productos_ids
+        ).fetchall())
+
+    if not productos_bajos:
+        return
+
+    def _send():
+        try:
+            subject, body = _build_stock_email(productos_bajos)
+            send_email(smtp_email, smtp_pass, notif_dest, subject, body)
+        except Exception:
+            pass  # Fallo silencioso en background
+
+    threading.Thread(target=_send, daemon=True).start()
 
 
 def hash_pw(password: str) -> str:
@@ -215,13 +274,6 @@ class LoginRequest(BaseModel):
 class PasswordChangeRequest(BaseModel):
     current_password: str
     new_password: str
-
-
-class ProfileUpdate(BaseModel):
-    nombre: Optional[str] = None
-    email: Optional[str] = None
-    telefono: Optional[str] = None
-    notif_pref: Optional[str] = None
 
 
 class UsuarioCreate(BaseModel):
@@ -350,6 +402,19 @@ class RestockRequest(BaseModel):
     proveedor: Optional[str] = None
     nota: Optional[str] = None
 
+
+class ProfileUpdate(BaseModel):
+    nombre: Optional[str] = None
+    notif_email_admin: Optional[str] = None   # correo destino de alertas
+    smtp_email: Optional[str] = None           # cuenta Gmail que envía
+    smtp_app_password: Optional[str] = None    # App Password de Google
+
+
+class TestEmailRequest(BaseModel):
+    smtp_email: str
+    smtp_app_password: str
+    notif_email_admin: str
+
 # ══════════════════════════════════════════════════════════════════
 # AUTH
 # ══════════════════════════════════════════════════════════════════
@@ -371,77 +436,19 @@ def login(data: LoginRequest):
     token = create_token(user["id"], user["rol"])
     return {
         "token": token,
-        "user": user_public_dict(user),
+        "user": {
+            "id": user["id"],
+            "nombre": user["nombre"],
+            "usuario": user["usuario"],
+            "rol": user["rol"],
+            "activo": bool(user["activo"]),
+        }
     }
 
 
 @app.get("/api/auth/me")
 def me(user=Depends(get_current_user)):
-    return user_public_dict(user)
-
-
-@app.patch("/api/auth/profile")
-def update_profile(data: ProfileUpdate, user=Depends(get_current_user)):
-    updates = {}
-    if data.nombre is not None:
-        nombre = data.nombre.strip()
-        if len(nombre) < 2:
-            raise HTTPException(
-                status_code=400, detail="El nombre debe tener al menos 2 caracteres")
-        updates["nombre"] = nombre
-    if data.email is not None:
-        email = data.email.strip()
-        if email and not validate_email(email):
-            raise HTTPException(status_code=400, detail="Correo electrónico inválido")
-        updates["email"] = email or None
-    if data.telefono is not None:
-        tel_raw = data.telefono.strip()
-        if tel_raw:
-            if not validate_cl_phone(tel_raw):
-                raise HTTPException(
-                    status_code=400,
-                    detail="Celular inválido. Usa formato chileno: +56 9 XXXX XXXX",
-                )
-            updates["telefono"] = normalize_cl_phone(tel_raw)
-        else:
-            updates["telefono"] = None
-    if data.notif_pref is not None:
-        pref = data.notif_pref.strip().lower()
-        if pref not in NOTIF_PREFS:
-            raise HTTPException(
-                status_code=400,
-                detail="Preferencia debe ser: email, whatsapp o ambos",
-            )
-        updates["notif_pref"] = pref
-
-    if not updates:
-        raise HTTPException(
-            status_code=400, detail="No hay campos para actualizar")
-
-    pref = updates.get("notif_pref", user.get("notif_pref") or "email")
-    email = updates.get("email", user.get("email"))
-    telefono = updates.get("telefono", user.get("telefono"))
-    if pref in ("email", "ambos") and not (email or "").strip():
-        raise HTTPException(
-            status_code=400,
-            detail="Indica un correo para recibir notificaciones por email",
-        )
-    if pref in ("whatsapp", "ambos") and not telefono:
-        raise HTTPException(
-            status_code=400,
-            detail="Indica un celular chileno (+56 9…) para notificaciones por WhatsApp",
-        )
-
-    set_clause = ", ".join(f"{k}=?" for k in updates)
-    with get_db() as conn:
-        conn.execute(
-            f"UPDATE usuarios SET {set_clause} WHERE id=?",
-            (*updates.values(), user["id"]),
-        )
-        row = conn.execute(
-            "SELECT * FROM usuarios WHERE id=?", (user["id"],)
-        ).fetchone()
-    return {"message": "Perfil actualizado", "user": user_public_dict(dict(row))}
+    return {k: v for k, v in user.items() if k != "password"}
 
 
 @app.post("/api/auth/change-password")
@@ -455,6 +462,109 @@ def change_password(data: PasswordChangeRequest, user=Depends(get_current_user))
             (hash_pw(data.new_password), user["id"])
         )
     return {"message": "Contraseña actualizada"}
+
+
+@app.get("/api/auth/profile")
+def get_profile(user=Depends(get_current_user)):
+    """Retorna datos del perfil del usuario + configuración de email (solo admin)."""
+    profile = {k: v for k, v in user.items() if k != "password"}
+    if user["rol"] == "admin":
+        with get_db() as conn:
+            profile["smtp_email"] = get_config(conn, "smtp_email")
+            profile["notif_email_admin"] = get_config(
+                conn, "notif_email_admin")
+            # Nunca devolver la contraseña real; solo indicar si está configurada
+            raw_pass = get_config(conn, "smtp_app_password")
+            profile["smtp_configured"] = bool(raw_pass)
+    return profile
+
+
+@app.patch("/api/auth/profile")
+def update_profile(data: ProfileUpdate, user=Depends(get_current_user)):
+    """Actualiza nombre del usuario y (solo admin) configuración SMTP."""
+    if data.nombre is not None:
+        with get_db() as conn:
+            conn.execute(
+                "UPDATE usuarios SET nombre=? WHERE id=?",
+                (data.nombre.strip(), user["id"])
+            )
+
+    if user["rol"] == "admin":
+        with get_db() as conn:
+            if data.smtp_email is not None:
+                set_config(conn, "smtp_email", data.smtp_email.strip())
+            if data.smtp_app_password is not None:
+                set_config(conn, "smtp_app_password",
+                           data.smtp_app_password.strip())
+            if data.notif_email_admin is not None:
+                set_config(conn, "notif_email_admin",
+                           data.notif_email_admin.strip())
+    elif any(v is not None for v in [data.smtp_email, data.smtp_app_password, data.notif_email_admin]):
+        raise HTTPException(
+            status_code=403,
+            detail="Solo el administrador puede modificar la configuración de correo"
+        )
+
+    return {"message": "Perfil actualizado"}
+
+
+@app.post("/api/auth/test-email")
+def test_email(data: TestEmailRequest, user=Depends(require_admin)):
+    """Envía un correo de prueba con las credenciales proporcionadas."""
+    if not data.smtp_email or not data.smtp_app_password or not data.notif_email_admin:
+        raise HTTPException(
+            status_code=400,
+            detail="Debes ingresar correo SMTP, App Password y correo destino"
+        )
+    subject = "✅ FreshMart — Correo de prueba"
+    body = f"""
+    <div style="font-family:'Segoe UI',Arial,sans-serif;max-width:500px;margin:0 auto;padding:24px">
+      <div style="background:#fff;border-radius:12px;border:1px solid #e5e7eb;overflow:hidden">
+        <div style="background:#16a34a;padding:20px 24px">
+          <h2 style="margin:0;color:#fff;font-size:18px">🛒 FreshMart ERP</h2>
+        </div>
+        <div style="padding:24px">
+          <p style="color:#374151;font-size:15px">
+            ¡Configuración exitosa! Las notificaciones de stock bajo mínimo serán
+            enviadas a <strong>{data.notif_email_admin}</strong> cada vez que un
+            producto alcance su límite.
+          </p>
+          <p style="color:#6b7280;font-size:13px">
+            Este correo fue enviado el {datetime.now().strftime('%d/%m/%Y a las %H:%M')}.
+          </p>
+        </div>
+      </div>
+    </div>
+    """
+    try:
+        send_email(data.smtp_email, data.smtp_app_password,
+                   data.notif_email_admin, subject, body)
+    except smtplib.SMTPAuthenticationError:
+        raise HTTPException(
+            status_code=400,
+            detail="Error de autenticación: verifica que el correo y App Password sean correctos"
+        )
+    except smtplib.SMTPException as e:
+        raise HTTPException(status_code=400, detail=f"Error SMTP: {str(e)}")
+    except Exception as e:
+        raise HTTPException(
+            status_code=400,
+            detail=f"No se pudo enviar el correo: {str(e)}"
+        )
+    return {"message": "Correo de prueba enviado correctamente"}
+
+
+@app.get("/api/notifications/stock-alerts")
+def stock_alerts(user=Depends(require_supervisor)):
+    """Retorna productos activos con stock <= stock_min para mostrar en el dashboard."""
+    with get_db() as conn:
+        rows = conn.execute(
+            """SELECT id, nombre, categoria, icono, stock, stock_min
+               FROM productos
+               WHERE activo=1 AND stock <= stock_min
+               ORDER BY stock ASC"""
+        ).fetchall()
+    return {"data": rows_to_list(rows), "total": len(rows)}
 
 # ══════════════════════════════════════════════════════════════════
 # USUARIOS / CAJEROS
@@ -636,17 +746,8 @@ def update_producto(pid: str, data: ProductoUpdate, user=Depends(require_supervi
             status_code=400, detail="No hay campos para actualizar")
     set_clause = ", ".join(f"{k}=?" for k in updates)
     with get_db() as conn:
-        old_row = conn.execute(
-            "SELECT stock, stock_min FROM productos WHERE id=?", (pid,)
-        ).fetchone()
-        if not old_row:
-            raise HTTPException(status_code=404, detail="Producto no encontrado")
-        old_stock = old_row["stock"]
         conn.execute(
             f"UPDATE productos SET {set_clause} WHERE id=?", (*updates.values(), pid))
-        new_stock = updates.get("stock", old_stock)
-        if "stock" in updates:
-            dispatch_stock_alerts(conn, pid, old_stock, new_stock)
     return {"message": "Producto actualizado"}
 
 
@@ -863,7 +964,6 @@ def list_ventas(fecha: Optional[str] = None, user=Depends(require_supervisor)):
 def create_venta(data: VentaCreate, user=Depends(get_current_user)):
     with get_db() as conn:
         # Verificar stock de todos los items primero
-        stock_before = {}
         for item in data.items:
             prod = conn.execute(
                 "SELECT stock, nombre FROM productos WHERE id=? AND activo=1", (
@@ -877,7 +977,6 @@ def create_venta(data: VentaCreate, user=Depends(get_current_user)):
                     status_code=400,
                     detail=f"Stock insuficiente para '{prod['nombre']}'. Disponible: {prod['stock']}"
                 )
-            stock_before[item.producto_id] = prod["stock"]
         # Insertar venta
         conn.execute(
             "INSERT INTO ventas (cajero_id, total, metodo_pago) VALUES (?,?,?)",
@@ -895,9 +994,8 @@ def create_venta(data: VentaCreate, user=Depends(get_current_user)):
                 "UPDATE productos SET stock = stock - ? WHERE id=?",
                 (item.cantidad, item.producto_id)
             )
-            old_s = stock_before[item.producto_id]
-            new_s = old_s - item.cantidad
-            dispatch_stock_alerts(conn, item.producto_id, old_s, new_s)
+    # Notificar stock bajo en background (no bloquea la respuesta)
+    _check_and_notify_stock([item.producto_id for item in data.items])
     return {"id": venta_id, "message": "Venta procesada"}
 
 
@@ -1192,6 +1290,3 @@ def dashboard(user=Depends(get_current_user)):
 @app.get("/api/health")
 def health():
     return {"status": "ok", "version": "1.0.0"}
-
-
-migrate_db()

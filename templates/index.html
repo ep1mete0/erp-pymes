@@ -2448,6 +2448,75 @@
       padding: 36px 0
     }
 
+    /* ─── PERFIL MODAL ─── */
+    .prof-section {
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border)
+    }
+
+    .prof-section:last-of-type {
+      border-bottom: none
+    }
+
+    .prof-section-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text3);
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      margin-bottom: 12px
+    }
+
+    .prof-role-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 99px;
+      font-size: 11px;
+      font-weight: 700;
+      background: var(--primary-l);
+      color: var(--primary)
+    }
+
+    .prof-info-box {
+      background: var(--blue-l);
+      border: 1px solid #bfdbfe;
+      border-radius: var(--radius-sm);
+      padding: 11px 14px;
+      font-size: 12px;
+      color: var(--blue);
+      margin-bottom: 14px;
+      line-height: 1.5
+    }
+
+    .prof-test-btn {
+      width: 100%;
+      padding: 9px 0;
+      border: 1.5px dashed var(--primary);
+      border-radius: var(--radius-sm);
+      background: var(--primary-xl, var(--primary-l));
+      color: var(--primary);
+      font-size: 13px;
+      font-weight: 700;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all .15s
+    }
+
+    .prof-test-btn:hover:not(:disabled) {
+      background: var(--primary);
+      color: #fff;
+      border-style: solid
+    }
+
+    .prof-test-btn:disabled {
+      opacity: .6;
+      cursor: not-allowed
+    }
+
     /* ─── HISTORIAL DE VENTAS ─── */
     #view-historial {
       background: var(--bg);
@@ -2458,123 +2527,6 @@
 
     #view-historial.active {
       display: flex
-    }
-
-    /* ─── PERFIL DE USUARIO ─── */
-    #view-perfil {
-      background: var(--bg);
-      display: none;
-      flex-direction: column;
-      overflow-y: auto
-    }
-
-    #view-perfil.active {
-      display: flex
-    }
-
-    #perfil-body {
-      padding: 24px;
-      max-width: 640px;
-      width: 100%;
-      margin: 0 auto
-    }
-
-    .perfil-card {
-      background: var(--white);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow-sm);
-      padding: 24px;
-      margin-bottom: 16px
-    }
-
-    .perfil-card-title {
-      font-family: 'Nunito', sans-serif;
-      font-size: 15px;
-      font-weight: 800;
-      color: var(--text);
-      margin-bottom: 16px;
-      padding-bottom: 10px;
-      border-bottom: 1px solid var(--border)
-    }
-
-    .perfil-readonly {
-      font-size: 13px;
-      color: var(--text3);
-      margin-bottom: 14px
-    }
-
-    .perfil-readonly strong {
-      color: var(--text);
-      font-weight: 600
-    }
-
-    .perfil-notif-options {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-top: 4px
-    }
-
-    .perfil-notif-opt {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      padding: 12px 14px;
-      border: 1.5px solid var(--border);
-      border-radius: var(--radius-sm);
-      cursor: pointer;
-      transition: border-color .15s, background .15s
-    }
-
-    .perfil-notif-opt:hover {
-      border-color: var(--primary);
-      background: var(--primary-l)
-    }
-
-    .perfil-notif-opt.selected {
-      border-color: var(--primary);
-      background: var(--primary-l)
-    }
-
-    .perfil-notif-opt input {
-      margin-top: 3px;
-      accent-color: var(--primary)
-    }
-
-    .perfil-notif-label {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--text)
-    }
-
-    .perfil-notif-hint {
-      font-size: 12px;
-      color: var(--text3);
-      margin-top: 2px
-    }
-
-    .perfil-hint {
-      font-size: 12px;
-      color: var(--text4);
-      margin-top: 6px
-    }
-
-    #perfil-phone-wrap {
-      display: flex;
-      gap: 8px;
-      align-items: center
-    }
-
-    .perfil-prefix {
-      padding: 9px 12px;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--text3);
-      flex-shrink: 0
     }
 
     #hist-kpi-row {
@@ -3467,7 +3419,7 @@
             <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
             <line x1="12" y1="22.08" x2="12" y2="12" />
           </svg> Inventario</div>
-        <div class="tw-step-pill">+4 más</div>
+        <div class="tw-step-pill">+3 más</div>
       </div>
       <div class="tw-actions">
         <button class="tw-btn-skip" onclick="closeTourWelcome()">Ahora no</button>
@@ -3500,7 +3452,7 @@
             </svg></div>
           <div>
             <div class="tour-tip-title" id="tip-title">Título</div>
-            <div class="tour-tip-subtitle" id="tip-step">Paso 1 de 10</div>
+            <div class="tour-tip-subtitle" id="tip-step">Paso 1 de 7</div>
           </div>
         </div>
         <button class="tour-tip-close" onclick="endTour()" title="Cerrar tour">✕</button>
@@ -3626,8 +3578,7 @@
       </nav>
       <div id="top-right">
         <div id="top-clock"></div>
-        <div id="user-pill" onclick="switchView('perfil')" title="Ver mi perfil" role="button" tabindex="0"
-          onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();switchView('perfil')}">
+        <div id="user-pill" onclick="openProfileModal()" title="Ver perfil" style="cursor:pointer">
           <div class="user-avatar" id="up-avatar"></div>
           <div>
             <div id="user-name"></div>
@@ -4195,69 +4146,97 @@
     </div>
   </div>
 
-  <!-- ══ PERFIL DE USUARIO ══ -->
-  <div class="view" id="view-perfil">
-    <div class="page-hdr">
-      <div>
-        <div class="page-title">Mi Perfil</div>
-        <div class="page-sub">Datos personales y preferencias de notificación</div>
+  <!-- ══ PERFIL / CONFIGURACIÓN DE CORREO MODAL ══ -->
+  <div class="modal-overlay" id="profile-modal">
+    <div class="modal-box" style="width:480px;max-height:90vh;overflow-y:auto">
+      <div class="modal-title">
+        <svg width="18px" height="18px" style="vertical-align:middle;margin-right:8px;color:var(--primary)"
+          viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+          stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+          <circle cx="12" cy="7" r="4" />
+        </svg>
+        Mi Perfil
       </div>
-      <button class="btn btn-primary" onclick="savePerfil()">Guardar cambios</button>
-    </div>
-    <div id="perfil-body">
-      <div class="perfil-card">
-        <div class="perfil-card-title">Cuenta</div>
-        <div class="perfil-readonly">Usuario de acceso: <strong id="pf-login-user">—</strong></div>
-        <div class="perfil-readonly">Rol: <strong id="pf-rol-label">—</strong></div>
-        <div class="form-group" style="margin-top:8px">
+
+      <!-- ── Sección: Datos personales ── -->
+      <div class="prof-section">
+        <div class="prof-section-title">Datos personales</div>
+        <div class="form-group" style="margin-bottom:12px">
           <label class="form-label">Nombre completo</label>
-          <input class="form-input" id="pf-nombre" type="text" placeholder="Tu nombre">
+          <input class="form-input" id="prof-nombre" placeholder="Tu nombre">
+        </div>
+        <div class="form-group" style="margin-bottom:4px">
+          <label class="form-label">Usuario</label>
+          <input class="form-input" id="prof-usuario" disabled style="background:var(--bg);color:var(--text3)">
+        </div>
+        <div style="margin-bottom:4px">
+          <span class="prof-role-badge" id="prof-role-badge"></span>
         </div>
       </div>
-      <div class="perfil-card">
-        <div class="perfil-card-title">Contacto</div>
-        <div class="form-group">
-          <label class="form-label">Correo electrónico</label>
-          <input class="form-input" id="pf-email" type="email" placeholder="tu@correo.cl">
-          <div class="perfil-hint">Para alertas de inventario por correo.</div>
+
+      <!-- ── Sección: Notificaciones de correo (solo admin) ── -->
+      <div class="prof-section" id="prof-email-section">
+        <div class="prof-section-title">
+          <svg width="14px" height="14px" style="vertical-align:middle;margin-right:6px" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+            <polyline points="22,6 12,13 2,6" />
+          </svg>
+          Notificaciones de stock por correo
         </div>
-        <div class="form-group">
-          <label class="form-label">Celular (Chile — WhatsApp)</label>
-          <div id="perfil-phone-wrap">
-            <span class="perfil-prefix">+56</span>
-            <input class="form-input" id="pf-telefono" type="tel" placeholder="9 1234 5678" maxlength="11"
-              style="flex:1">
+        <div class="prof-info-box">
+          Cuando un producto alcanza su stock mínimo tras una venta, el sistema enviará automáticamente un correo de
+          alerta al administrador. Necesitas una <strong>App Password</strong> de Google (no tu contraseña normal).
+        </div>
+        <div class="form-group" style="margin-bottom:12px">
+          <label class="form-label">Correo Gmail que envía (remitente)</label>
+          <input class="form-input" id="prof-smtp-email" type="email" placeholder="tu@gmail.com" autocomplete="off">
+        </div>
+        <div class="form-group" style="margin-bottom:12px">
+          <label class="form-label">App Password de Google</label>
+          <div style="position:relative">
+            <input class="form-input" id="prof-smtp-pass" type="password" placeholder="xxxx xxxx xxxx xxxx"
+              autocomplete="new-password" style="padding-right:44px">
+            <button onclick="togglePassVis('prof-smtp-pass','prof-pass-eye')"
+              style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text3);padding:4px"
+              title="Mostrar/ocultar">
+              <svg id="prof-pass-eye" width="16px" height="16px" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+            </button>
           </div>
-          <div class="perfil-hint">Formato: 9 dígitos después del +56 (ej. 912345678).</div>
+          <div id="prof-smtp-status" style="margin-top:6px;font-size:12px"></div>
         </div>
+        <div class="form-group" style="margin-bottom:12px">
+          <label class="form-label">Correo destino de alertas (administrador)</label>
+          <input class="form-input" id="prof-notif-email" type="email" placeholder="admin@freshmart.cl">
+        </div>
+        <button class="prof-test-btn" id="prof-test-btn" onclick="sendTestEmail()">
+          <svg width="14px" height="14px" style="vertical-align:middle;margin-right:6px;flex-shrink:0"
+            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13" />
+            <polygon points="22 2 15 22 11 13 2 9 22 2" />
+          </svg>
+          Enviar correo de prueba
+        </button>
       </div>
-      <div class="perfil-card">
-        <div class="perfil-card-title">Notificaciones de stock</div>
-        <p class="perfil-hint" style="margin-bottom:12px">Cuando un producto baja de su <strong>stock mínimo</strong>,
-          recibirás un aviso por el canal que elijas (administradores y supervisores).</p>
-        <div class="perfil-notif-options" id="pf-notif-options">
-          <label class="perfil-notif-opt" data-pref="email">
-            <input type="radio" name="pf-notif" value="email">
-            <div>
-              <div class="perfil-notif-label">Solo correo electrónico</div>
-              <div class="perfil-notif-hint">Requiere correo configurado arriba.</div>
-            </div>
-          </label>
-          <label class="perfil-notif-opt" data-pref="whatsapp">
-            <input type="radio" name="pf-notif" value="whatsapp">
-            <div>
-              <div class="perfil-notif-label">Solo WhatsApp</div>
-              <div class="perfil-notif-hint">Requiere celular chileno (+56 9…).</div>
-            </div>
-          </label>
-          <label class="perfil-notif-opt" data-pref="ambos">
-            <input type="radio" name="pf-notif" value="ambos">
-            <div>
-              <div class="perfil-notif-label">Correo y WhatsApp</div>
-              <div class="perfil-notif-hint">Ambos canales deben estar configurados.</div>
-            </div>
-          </label>
-        </div>
+
+      <div class="modal-actions">
+        <button class="modal-cancel" onclick="closeProfileModal()">Cancelar</button>
+        <button class="modal-save" onclick="saveProfile()">
+          <svg width="15px" height="15px" style="color:currentColor;vertical-align:middle;flex-shrink:0"
+            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round">
+            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+            <polyline points="17 21 17 13 7 13 7 21" />
+            <polyline points="7 3 7 8 15 8" />
+          </svg>
+          Guardar cambios
+        </button>
       </div>
     </div>
   </div>
@@ -4490,9 +4469,9 @@
     let authToken = localStorage.getItem('fm_token') || '';
 
     const PERMISOS = {
-      admin: ['dashboard', 'pos', 'inventario', 'cajeros', 'historial', 'proveedores', 'perfil'],
-      supervisor: ['dashboard', 'pos', 'inventario', 'historial', 'proveedores', 'perfil'],
-      cajero: ['dashboard', 'pos', 'perfil'],
+      admin: ['dashboard', 'pos', 'inventario', 'cajeros', 'historial', 'proveedores'],
+      supervisor: ['dashboard', 'pos', 'inventario', 'historial', 'proveedores'],
+      cajero: ['dashboard', 'pos'],
     };
 
     let currentUser = null, currentView = 'dashboard';
@@ -4572,7 +4551,6 @@
         authToken = res.token;
         localStorage.setItem('fm_token', authToken);
         currentUser = res.user;
-        window.currentUser = currentUser;
         startApp();
       } catch (e) {
         errEl.textContent = e.message;
@@ -4608,7 +4586,6 @@
       authToken = '';
       localStorage.removeItem('fm_token');
       currentUser = null;
-      window.currentUser = null;
       posCart = [];
       document.getElementById('app').classList.remove('visible');
       document.getElementById('login-screen').style.display = 'flex';
@@ -4626,7 +4603,6 @@
       if (!authToken) return;
       try {
         currentUser = await api('GET', '/auth/me');
-        window.currentUser = currentUser;
         startApp();
       } catch (e) {
         localStorage.removeItem('fm_token');
@@ -4650,7 +4626,6 @@
       if (v === 'cajeros') loadCajeros();
       if (v === 'proveedores') loadProveedores();
       if (v === 'historial') histLoadData();
-      if (v === 'perfil') loadPerfil();
     }
 
     // ══════════════════════════════════════════════════════
@@ -5508,88 +5483,6 @@
     function verifyPM() { closePinOverlay(); }
 
     // ══════════════════════════════════════════════════════
-    //  PERFIL DE USUARIO
-    // ══════════════════════════════════════════════════════
-    function perfilPhoneDisplay(tel) {
-      if (!tel) return '';
-      let d = String(tel).replace(/\D/g, '');
-      if (d.startsWith('56')) d = d.slice(2);
-      if (d.length === 9 && d[0] === '9') {
-        return d.slice(0, 1) + ' ' + d.slice(1, 5) + ' ' + d.slice(5);
-      }
-      return tel;
-    }
-
-    function perfilPhoneToApi(raw) {
-      const d = raw.replace(/\D/g, '');
-      if (!d) return '';
-      const nine = d.length === 9 && d[0] === '9' ? d : (d.length >= 9 ? d.slice(-9) : '');
-      if (!nine || nine[0] !== '9') return raw.trim();
-      return '+56' + nine;
-    }
-
-    function syncPerfilNotifUI(pref) {
-      document.querySelectorAll('.perfil-notif-opt').forEach(el => {
-        const on = el.dataset.pref === pref;
-        el.classList.toggle('selected', on);
-        const inp = el.querySelector('input');
-        if (inp) inp.checked = on;
-      });
-    }
-
-    async function loadPerfil() {
-      try {
-        const u = await api('GET', '/auth/me');
-        currentUser = u;
-        window.currentUser = currentUser;
-        document.getElementById('pf-login-user').textContent = '@' + u.usuario;
-        document.getElementById('pf-rol-label').textContent = rolLabel(u.rol);
-        document.getElementById('pf-nombre').value = u.nombre || '';
-        document.getElementById('pf-email').value = u.email || '';
-        const tel = u.telefono_e164 || u.telefono || '';
-        document.getElementById('pf-telefono').value = perfilPhoneDisplay(tel);
-        syncPerfilNotifUI(u.notif_pref || 'email');
-      } catch (e) {
-        showToast(e.message, 'error');
-      }
-    }
-    window.loadPerfil = loadPerfil;
-
-    async function savePerfil() {
-      const prefEl = document.querySelector('input[name="pf-notif"]:checked');
-      const body = {
-        nombre: document.getElementById('pf-nombre').value.trim(),
-        email: document.getElementById('pf-email').value.trim(),
-        telefono: perfilPhoneToApi(document.getElementById('pf-telefono').value),
-        notif_pref: prefEl ? prefEl.value : 'email',
-      };
-      try {
-        const res = await api('PATCH', '/auth/profile', body);
-        currentUser = res.user;
-        window.currentUser = currentUser;
-        document.getElementById('user-name').textContent = currentUser.nombre;
-        document.getElementById('up-avatar').textContent = initials(currentUser.nombre);
-        showToast('Perfil actualizado', 'ok');
-      } catch (e) {
-        showToast(e.message, 'error');
-      }
-    }
-    window.savePerfil = savePerfil;
-
-    document.querySelectorAll('.perfil-notif-opt').forEach(el => {
-      el.addEventListener('click', () => syncPerfilNotifUI(el.dataset.pref));
-    });
-
-    document.getElementById('pf-telefono')?.addEventListener('input', e => {
-      let d = e.target.value.replace(/\D/g, '').slice(0, 9);
-      if (d.length > 1) {
-        e.target.value = d.slice(0, 1) + (d.length > 1 ? ' ' + d.slice(1, 5) : '') + (d.length > 5 ? ' ' + d.slice(5) : '');
-      } else {
-        e.target.value = d;
-      }
-    });
-
-    // ══════════════════════════════════════════════════════
     //  HISTORIAL DE VENTAS
     // ══════════════════════════════════════════════════════
     let histPeriod = 'today';
@@ -5693,6 +5586,123 @@
     window.histLoadData = histLoadData;
 
     // ══════════════════════════════════════════════════════
+    //  PERFIL DE USUARIO & CONFIGURACIÓN DE CORREO
+    // ══════════════════════════════════════════════════════
+
+    function togglePassVis(inputId, iconId) {
+      const inp = document.getElementById(inputId);
+      inp.type = inp.type === 'password' ? 'text' : 'password';
+    }
+    window.togglePassVis = togglePassVis;
+
+    async function openProfileModal() {
+      try {
+        const profile = await api('GET', '/auth/profile');
+
+        document.getElementById('prof-nombre').value = profile.nombre || '';
+        document.getElementById('prof-usuario').value = profile.usuario || '';
+
+        const badge = document.getElementById('prof-role-badge');
+        badge.textContent = rolLabel(profile.rol);
+        badge.className = `prof-role-badge ${badgeClass(profile.rol)}`;
+
+        // Sección email solo para admin
+        const emailSection = document.getElementById('prof-email-section');
+        if (profile.rol === 'admin') {
+          emailSection.style.display = '';
+          document.getElementById('prof-smtp-email').value = profile.smtp_email || '';
+          document.getElementById('prof-smtp-pass').value = '';  // nunca prerellenar password
+          document.getElementById('prof-notif-email').value = profile.notif_email_admin || '';
+          const statusEl = document.getElementById('prof-smtp-status');
+          if (profile.smtp_configured) {
+            statusEl.innerHTML = '<span style="color:var(--primary)">✓ App Password configurada</span>';
+          } else {
+            statusEl.innerHTML = '<span style="color:var(--text3)">Sin App Password configurada</span>';
+          }
+        } else {
+          emailSection.style.display = 'none';
+        }
+
+        document.getElementById('profile-modal').classList.add('show');
+      } catch (e) {
+        showToast('Error al cargar perfil: ' + e.message, 'error');
+      }
+    }
+    window.openProfileModal = openProfileModal;
+
+    function closeProfileModal() {
+      document.getElementById('profile-modal').classList.remove('show');
+    }
+    window.closeProfileModal = closeProfileModal;
+
+    async function saveProfile() {
+      const nombre = document.getElementById('prof-nombre').value.trim();
+      if (!nombre) { showToast('El nombre no puede estar vacío', 'error'); return; }
+
+      const body = { nombre };
+
+      if (currentUser.rol === 'admin') {
+        const smtpEmail = document.getElementById('prof-smtp-email').value.trim();
+        const smtpPass = document.getElementById('prof-smtp-pass').value.trim();
+        const notifEmail = document.getElementById('prof-notif-email').value.trim();
+        if (smtpEmail) body.smtp_email = smtpEmail;
+        if (smtpPass) body.smtp_app_password = smtpPass;
+        if (notifEmail) body.notif_email_admin = notifEmail;
+      }
+
+      try {
+        await api('PATCH', '/auth/profile', body);
+        // Actualizar nombre en topbar sin relogin
+        currentUser.nombre = nombre;
+        document.getElementById('user-name').textContent = nombre;
+        document.getElementById('up-avatar').textContent = initials(nombre);
+        closeProfileModal();
+        showToast('Perfil actualizado correctamente');
+      } catch (e) {
+        showToast('Error al guardar: ' + e.message, 'error');
+      }
+    }
+    window.saveProfile = saveProfile;
+
+    async function sendTestEmail() {
+      const smtpEmail = document.getElementById('prof-smtp-email').value.trim();
+      const smtpPass = document.getElementById('prof-smtp-pass').value.trim();
+      const notifEmail = document.getElementById('prof-notif-email').value.trim();
+
+      if (!smtpEmail || !smtpPass || !notifEmail) {
+        showToast('Completa el correo Gmail, App Password y correo destino antes de probar', 'error');
+        return;
+      }
+
+      const btn = document.getElementById('prof-test-btn');
+      btn.disabled = true;
+      btn.innerHTML = `<svg width="14px" height="14px" style="vertical-align:middle;margin-right:6px;animation:spin 1s linear infinite" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-dasharray="32" stroke-dashoffset="10"/></svg> Enviando...`;
+
+      try {
+        await api('POST', '/auth/test-email', {
+          smtp_email: smtpEmail,
+          smtp_app_password: smtpPass,
+          notif_email_admin: notifEmail
+        });
+        showToast('✅ Correo de prueba enviado a ' + notifEmail);
+        // Actualizar badge de estado
+        document.getElementById('prof-smtp-status').innerHTML =
+          '<span style="color:var(--primary)">✓ App Password verificada correctamente</span>';
+      } catch (e) {
+        showToast('Error: ' + e.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<svg width="14px" height="14px" style="vertical-align:middle;margin-right:6px;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Enviar correo de prueba`;
+      }
+    }
+    window.sendTestEmail = sendTestEmail;
+
+    // Cerrar modal de perfil al click en overlay
+    document.getElementById('profile-modal').addEventListener('click', function (e) {
+      if (e.target === this) closeProfileModal();
+    });
+
+    // ══════════════════════════════════════════════════════
     //  TOUR GUIADO — Sistema de visita guiada
     // ══════════════════════════════════════════════════════
     const TOUR_STEPS = [
@@ -5738,19 +5748,11 @@
       },
       {
         target: '[data-view="historial"]',
-        icon: `<svg width="22px" height="22px" style="color:var(--primary);vertical-align:middle;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>`,
+        icon: `<svg width="22px" height="22px" style="color:var(--purple);vertical-align:middle;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>`,
         title: 'Historial de Ventas',
-        desc: 'En <strong>Historial</strong> consultas todas las ventas realizadas: filtra por período, revisa totales y ticket promedio, y explora el detalle de cada transacción por cajero y método de pago.',
+        desc: 'El <strong>Historial de Ventas</strong> te permite consultar y analizar todas las transacciones del negocio. Filtra por día, semana, mes o rango personalizado, y revisa totales, ticket promedio y detalle de cada venta.',
         position: 'bottom',
         view: 'historial'
-      },
-      {
-        target: '#view-cajeros #cajero-toolbar',
-        icon: `<svg width="22px" height="22px" style="color:var(--purple);vertical-align:middle;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
-        title: 'Gestión de Personal',
-        desc: 'La sección de <strong>Personal</strong> te permite administrar cajeros y supervisores: ver sus turnos activos, horarios de entrada y salida, y el estado de cada empleado. Accede desde el acceso rápido del inicio.',
-        position: 'bottom',
-        view: 'cajeros'
       },
       {
         target: '[data-view="proveedores"]',
@@ -5764,9 +5766,9 @@
         target: '#user-pill',
         icon: `<svg width="22px" height="22px" style="color:var(--text3);vertical-align:middle;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
         title: 'Tu perfil de usuario',
-        desc: 'Haz clic aquí para abrir <strong>Mi Perfil</strong>: edita tu nombre, correo, celular chileno (WhatsApp) y elige cómo recibir alertas cuando el stock baje del mínimo.',
+        desc: 'Aquí aparece tu <strong>nombre y rol</strong> en el sistema. Cada usuario tiene permisos según su rol: Administrador ve todo, Supervisor gestiona operaciones, Cajero solo vende.',
         position: 'bottom-left',
-        view: 'perfil'
+        view: null
       },
       {
         target: '#logout-btn',
@@ -5815,12 +5817,8 @@
       const step = TOUR_STEPS[idx];
       if (!step) { endTour(); return; }
 
-      // Omitir pasos de vistas sin permiso para el rol actual
-      if (step.view) {
-        const perms = PERMISOS[currentUser?.rol] || [];
-        if (!perms.includes(step.view)) { tourNext(); return; }
-        switchView(step.view);
-      }
+      // Navegar a la vista si es necesario
+      if (step.view) switchView(step.view);
 
       // Pequeño delay para que el DOM se actualice
       setTimeout(() => {
@@ -5935,9 +5933,6 @@
     function tourPrev() {
       if (tourStep > 0) {
         tourStep--;
-        const step = TOUR_STEPS[tourStep];
-        const perms = PERMISOS[currentUser?.rol] || [];
-        if (step?.view && !perms.includes(step.view)) { tourPrev(); return; }
         showTourStep(tourStep);
       }
     }

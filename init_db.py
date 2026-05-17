@@ -25,18 +25,14 @@ def main():
     # ─── USUARIOS ───────────────────────────────────────────
     c.execute("""
     CREATE TABLE IF NOT EXISTS usuarios (
-        id          INTEGER PRIMARY KEY AUTOINCREMENT,
-        nombre      TEXT    NOT NULL,
-        usuario     TEXT    NOT NULL UNIQUE,
-        password    TEXT    NOT NULL,
-        rol         TEXT    NOT NULL CHECK(rol IN ('admin','supervisor','cajero')),
-        pin         TEXT    NOT NULL DEFAULT '0000',
-        activo      INTEGER NOT NULL DEFAULT 1,
-        creado      TEXT    NOT NULL DEFAULT (date('now')),
-        email       TEXT,
-        telefono    TEXT,
-        notif_pref  TEXT    NOT NULL DEFAULT 'email'
-                    CHECK(notif_pref IN ('email','whatsapp','ambos'))
+        id        INTEGER PRIMARY KEY AUTOINCREMENT,
+        nombre    TEXT    NOT NULL,
+        usuario   TEXT    NOT NULL UNIQUE,
+        password  TEXT    NOT NULL,
+        rol       TEXT    NOT NULL CHECK(rol IN ('admin','supervisor','cajero')),
+        pin       TEXT    NOT NULL DEFAULT '0000',
+        activo    INTEGER NOT NULL DEFAULT 1,
+        creado    TEXT    NOT NULL DEFAULT (date('now'))
     )
     """)
 
@@ -132,20 +128,6 @@ def main():
     )
     """)
 
-    # ─── LOG DE NOTIFICACIONES ───────────────────────────────
-    c.execute("""
-    CREATE TABLE IF NOT EXISTS notificaciones_log (
-        id          INTEGER PRIMARY KEY AUTOINCREMENT,
-        usuario_id  INTEGER NOT NULL REFERENCES usuarios(id),
-        producto_id TEXT,
-        canal       TEXT NOT NULL,
-        destino     TEXT,
-        mensaje     TEXT,
-        estado      TEXT NOT NULL DEFAULT 'enviado',
-        creado      TEXT NOT NULL DEFAULT (datetime('now'))
-    )
-    """)
-
     # ─── REPOSICIONES / MOVIMIENTOS DE STOCK ────────────────
     c.execute("""
     CREATE TABLE IF NOT EXISTS reposiciones (
@@ -158,9 +140,22 @@ def main():
     )
     """)
 
-    conn.commit()
+    # ─── CONFIGURACIÓN DEL SISTEMA ───────────────────────────
+    c.execute("""
+    CREATE TABLE IF NOT EXISTS config (
+        clave TEXT PRIMARY KEY,
+        valor TEXT NOT NULL DEFAULT ''
+    )
+    """)
 
-    # ═══════════════════════════════════════════════════════════
+    # ─── CONFIG INICIAL ──────────────────────────────────────
+    for clave in ("smtp_email", "smtp_app_password", "notif_email_admin"):
+        c.execute(
+            "INSERT OR IGNORE INTO config (clave, valor) VALUES (?, '')",
+            (clave,)
+        )
+
+    conn.commit()
     # DATOS INICIALES
     # ═══════════════════════════════════════════════════════════
 
