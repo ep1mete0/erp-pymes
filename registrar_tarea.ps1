@@ -10,7 +10,7 @@
 
 # ── CONFIG ───────────────────────────────────────────────────
 $TaskName   = "IniciarFastAPI"
-$BatPath    = "C:\ruta\a\tu\proyecto\iniciar_app.bat"
+$BatPath    = "C:\Users\webma\Documents\POS\local_first\iniciar_app.bat"
 $Description = "Inicia el servidor FastAPI y abre el navegador al iniciar sesión"
 # ─────────────────────────────────────────────────────────────
 
