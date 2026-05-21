@@ -138,6 +138,11 @@ def init_test_db():
             nota        TEXT,
             creado      TEXT DEFAULT (datetime('now'))
         );
+
+        CREATE TABLE IF NOT EXISTS config (
+            clave TEXT PRIMARY KEY,
+            valor TEXT NOT NULL DEFAULT ''
+        );
     """)
 
     # Seed: usuarios
@@ -894,3 +899,303 @@ class TestSeguridad:
             "nombre": "X", "usuario": "x_sup", "password": "x", "rol": "cajero"
         })
         assert r.status_code == 403
+
+# ══════════════════════════════════════════════════════════════════
+#  HISTORIAL DE VENTAS
+# ══════════════════════════════════════════════════════════════════
+
+class TestSalesHistory:
+    """Tests para GET /api/sales/history y /api/sales/summary"""
+
+    @classmethod
+    def _seed_venta(cls, token_cajero):
+        """Crea una venta de prueba y retorna su id."""
+        r = client.post("/api/ventas", headers=auth(token_cajero), json={
+            "total": 1000,
+            "metodo_pago": "Efectivo",
+            "items": [
+                {"producto_id": "PROD002", "nombre": "Pan Marraqueta",
+                 "cantidad": 1, "precio": 1000, "descuento": 0}
+            ]
+        })
+        assert r.status_code == 201, r.text
+        return r.json()["id"]
+
+    def test_history_requires_auth(self):
+        r = client.get("/api/sales/history")
+        assert r.status_code in (401, 403)
+
+    def test_history_forbidden_cajero(self):
+        token = get_token("rfuentes", "caja789")
+        r = client.get("/api/sales/history", headers=auth(token))
+        assert r.status_code == 403
+
+    def test_history_supervisor_ok(self):
+        token = get_token("vsoto", "super456")
+        r = client.get("/api/sales/history", headers=auth(token))
+        assert r.status_code == 200
+        data = r.json()
+        assert data["success"] is True
+        assert "data" in data
+        assert "pagination" in data
+        assert isinstance(data["data"], list)
+
+    def test_history_admin_ok(self):
+        token = get_token()
+        r = client.get("/api/sales/history", headers=auth(token))
+        assert r.status_code == 200
+
+    def test_history_period_today(self):
+        # Primero crear una venta
+        cajero_token = get_token("rfuentes", "caja789")
+        self._seed_venta(cajero_token)
+        token = get_token("vsoto", "super456")
+        r = client.get("/api/sales/history?period=today", headers=auth(token))
+        assert r.status_code == 200
+        data = r.json()
+        assert data["success"] is True
+        assert len(data["data"]) >= 1
+
+    def test_history_period_week(self):
+        token = get_token("vsoto", "super456")
+        r = client.get("/api/sales/history?period=week", headers=auth(token))
+        assert r.status_code == 200
+        assert r.json()["success"] is True
+
+    def test_history_period_month(self):
+        token = get_token("vsoto", "super456")
+        r = client.get("/api/sales/history?period=month", headers=auth(token))
+        assert r.status_code == 200
+        assert r.json()["success"] is True
+
+    def test_history_invalid_period(self):
+        token = get_token("vsoto", "super456")
+        r = client.get("/api/sales/history?period=yesterday", headers=auth(token))
+        assert r.status_code == 400
+
+    def test_history_date_range(self):
+        token = get_token("vsoto", "super456")
+        r = client.get("/api/sales/history?start_date=2020-01-01&end_date=2099-12-31", headers=auth(token))
+        assert r.status_code == 200
+        assert r.json()["success"] is True
+
+    def test_history_invalid_date_format(self):
+        token = get_token("vsoto", "super456")
+        r = client.get("/api/sales/history?start_date=31/12/2025", headers=auth(token))
+        assert r.status_code == 400
+
+    def test_history_no_results_range(self):
+        token = get_token("vsoto", "super456")
+        r = client.get("/api/sales/history?start_date=2000-01-01&end_date=2000-01-02", headers=auth(token))
+        assert r.status_code == 200
+        data = r.json()
+        assert data["success"] is True
+        assert data["data"] == []
+        assert data["pagination"]["total"] == 0
+
+    def test_history_pagination_structure(self):
+        token = get_token("vsoto", "super456")
+        r = client.get("/api/sales/history?per_page=5&page=1", headers=auth(token))
+        assert r.status_code == 200
+        pag = r.json()["pagination"]
+        assert "page" in pag
+        assert "per_page" in pag
+        assert "total" in pag
+        assert "pages" in pag
+
+    def test_history_invalid_page(self):
+        token = get_token("vsoto", "super456")
+        r = client.get("/api/sales/history?page=0", headers=auth(token))
+        assert r.status_code == 400
+
+    def test_history_row_fields(self):
+        # Crear venta y verificar campos en respuesta
+        cajero_token = get_token("rfuentes", "caja789")
+        self._seed_venta(cajero_token)
+        token = get_token("vsoto", "super456")
+        r = client.get("/api/sales/history?period=today", headers=auth(token))
+        rows = r.json()["data"]
+        assert len(rows) > 0
+        row = rows[0]
+        for field in ("id", "total", "metodo_pago", "creado", "cajero_nombre", "num_productos"):
+            assert field in row, f"Campo '{field}' faltante"
+
+    def test_summary_requires_auth(self):
+        r = client.get("/api/sales/summary")
+        assert r.status_code in (401, 403)
+
+    def test_summary_forbidden_cajero(self):
+        token = get_token("rfuentes", "caja789")
+        r = client.get("/api/sales/summary", headers=auth(token))
+        assert r.status_code == 403
+
+    def test_summary_ok(self):
+        token = get_token("vsoto", "super456")
+        r = client.get("/api/sales/summary", headers=auth(token))
+        assert r.status_code == 200
+        data = r.json()
+        assert data["success"] is True
+        assert "total_vendido" in data["data"]
+        assert "cantidad_ventas" in data["data"]
+        assert "ticket_promedio" in data["data"]
+
+    def test_summary_period_today_values(self):
+        # Asegurar al menos 1 venta hoy
+        cajero_token = get_token("rfuentes", "caja789")
+        self._seed_venta(cajero_token)
+        token = get_token("vsoto", "super456")
+        r = client.get("/api/sales/summary?period=today", headers=auth(token))
+        data = r.json()["data"]
+        assert data["total_vendido"] > 0
+        assert data["cantidad_ventas"] >= 1
+
+    def test_summary_empty_range(self):
+        token = get_token("vsoto", "super456")
+        r = client.get("/api/sales/summary?start_date=2000-01-01&end_date=2000-01-02", headers=auth(token))
+        assert r.status_code == 200
+        data = r.json()["data"]
+        assert data["total_vendido"] == 0
+        assert data["cantidad_ventas"] == 0
+
+    def test_summary_invalid_period(self):
+        token = get_token("vsoto", "super456")
+        r = client.get("/api/sales/summary?period=badvalue", headers=auth(token))
+        assert r.status_code == 400
+
+# ══════════════════════════════════════════════════════════════════
+#  PERFIL & CONFIGURACIÓN DE CORREO
+# ══════════════════════════════════════════════════════════════════
+
+class TestProfile:
+    """Tests para GET/PATCH /api/auth/profile y POST /api/auth/test-email"""
+
+    def test_get_profile_requires_auth(self):
+        r = client.get("/api/auth/profile")
+        assert r.status_code in (401, 403)
+
+    def test_get_profile_admin(self):
+        token = get_token()
+        r = client.get("/api/auth/profile", headers=auth(token))
+        assert r.status_code == 200
+        data = r.json()
+        assert data["usuario"] == "admin"
+        assert data["rol"] == "admin"
+        assert "smtp_email" in data
+        assert "notif_email_admin" in data
+        assert "smtp_configured" in data
+        assert "password" not in data
+
+    def test_get_profile_cajero_no_email_fields(self):
+        token = get_token("rfuentes", "caja789")
+        r = client.get("/api/auth/profile", headers=auth(token))
+        assert r.status_code == 200
+        data = r.json()
+        assert "smtp_email" not in data
+        assert "smtp_app_password" not in data
+
+    def test_patch_profile_nombre(self):
+        token = get_token()
+        r = client.patch("/api/auth/profile", headers=auth(token), json={"nombre": "Carlos Admin"})
+        assert r.status_code == 200
+        # Verificar que cambió
+        profile = client.get("/api/auth/profile", headers=auth(token)).json()
+        assert profile["nombre"] == "Carlos Admin"
+        # Restaurar
+        client.patch("/api/auth/profile", headers=auth(token), json={"nombre": "Carlos Mendoza"})
+
+    def test_patch_profile_smtp_config(self):
+        token = get_token()
+        r = client.patch("/api/auth/profile", headers=auth(token), json={
+            "smtp_email": "test@gmail.com",
+            "smtp_app_password": "testpass1234",
+            "notif_email_admin": "admin@freshmart.cl"
+        })
+        assert r.status_code == 200
+        profile = client.get("/api/auth/profile", headers=auth(token)).json()
+        assert profile["smtp_email"] == "test@gmail.com"
+        assert profile["smtp_configured"] is True
+
+    def test_patch_profile_smtp_forbidden_for_cajero(self):
+        token = get_token("rfuentes", "caja789")
+        r = client.patch("/api/auth/profile", headers=auth(token), json={
+            "smtp_email": "hacker@gmail.com"
+        })
+        assert r.status_code == 403
+
+    def test_cajero_can_update_own_nombre(self):
+        token = get_token("rfuentes", "caja789")
+        r = client.patch("/api/auth/profile", headers=auth(token), json={"nombre": "Rodrigo F."})
+        assert r.status_code == 200
+        # Restaurar
+        client.patch("/api/auth/profile", headers=auth(token), json={"nombre": "Rodrigo Fuentes"})
+
+    def test_test_email_requires_admin(self):
+        token = get_token("vsoto", "super456")
+        r = client.post("/api/auth/test-email", headers=auth(token), json={
+            "smtp_email": "x@gmail.com",
+            "smtp_app_password": "xxx",
+            "notif_email_admin": "dest@mail.com"
+        })
+        assert r.status_code == 403
+
+    def test_test_email_empty_fields_returns_400(self):
+        token = get_token()
+        r = client.post("/api/auth/test-email", headers=auth(token), json={
+            "smtp_email": "",
+            "smtp_app_password": "",
+            "notif_email_admin": ""
+        })
+        assert r.status_code == 400
+
+    def test_test_email_bad_credentials_returns_400(self):
+        """Con credenciales inválidas el servidor SMTP rechaza → 400"""
+        token = get_token()
+        r = client.post("/api/auth/test-email", headers=auth(token), json={
+            "smtp_email": "invalid@gmail.com",
+            "smtp_app_password": "wrongpassword",
+            "notif_email_admin": "dest@mail.com"
+        })
+        # Debe ser 400 (auth error o conexión rechazada), no 500
+        assert r.status_code == 400
+
+
+class TestStockAlerts:
+    """Tests para GET /api/notifications/stock-alerts"""
+
+    def test_stock_alerts_requires_auth(self):
+        r = client.get("/api/notifications/stock-alerts")
+        assert r.status_code in (401, 403)
+
+    def test_stock_alerts_forbidden_cajero(self):
+        token = get_token("rfuentes", "caja789")
+        r = client.get("/api/notifications/stock-alerts", headers=auth(token))
+        assert r.status_code == 403
+
+    def test_stock_alerts_supervisor_ok(self):
+        token = get_token("vsoto", "super456")
+        r = client.get("/api/notifications/stock-alerts", headers=auth(token))
+        assert r.status_code == 200
+        data = r.json()
+        assert "data" in data
+        assert "total" in data
+        assert isinstance(data["data"], list)
+
+    def test_stock_alerts_admin_ok(self):
+        token = get_token()
+        r = client.get("/api/notifications/stock-alerts", headers=auth(token))
+        assert r.status_code == 200
+
+    def test_stock_alerts_all_below_min(self):
+        """Todos los productos retornados deben tener stock <= stock_min"""
+        token = get_token()
+        r = client.get("/api/notifications/stock-alerts", headers=auth(token))
+        for prod in r.json()["data"]:
+            assert prod["stock"] <= prod["stock_min"], \
+                f"{prod['nombre']}: stock {prod['stock']} > stock_min {prod['stock_min']}"
+
+    def test_stock_alerts_fields(self):
+        token = get_token()
+        r = client.get("/api/notifications/stock-alerts", headers=auth(token))
+        for prod in r.json()["data"]:
+            for field in ("id", "nombre", "categoria", "icono", "stock", "stock_min"):
+                assert field in prod, f"Campo '{field}' faltante en alerta de stock"

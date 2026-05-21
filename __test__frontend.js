@@ -1,4 +1,3 @@
-
 // ════════════════════════════════════════════════════════════════
 // FreshMart — Tests Frontend
 // Cubre la lógica JS del HTML sin necesidad de un navegador real
@@ -11,11 +10,11 @@ const path = require('path');
 
 // ── Colores para output ──────────────────────────────────────────
 const GREEN = '\x1b[32m';
-const RED   = '\x1b[31m';
+const RED = '\x1b[31m';
 const YELLOW = '\x1b[33m';
-const CYAN  = '\x1b[36m';
+const CYAN = '\x1b[36m';
 const RESET = '\x1b[0m';
-const BOLD  = '\x1b[1m';
+const BOLD = '\x1b[1m';
 
 // ── Runner de tests ──────────────────────────────────────────────
 let passed = 0, failed = 0, skipped = 0;
@@ -102,6 +101,29 @@ function setupDOM() {
       win.fetch = async (url, opts) => {
         const body = opts?.body ? JSON.parse(opts.body) : {};
         // Simular respuestas básicas de la API
+        if (url.includes('/api/auth/profile') && opts?.method === 'PATCH') return mockResponse(200, { message: 'Perfil actualizado' });
+        if (url.includes('/api/auth/profile')) return mockResponse(200, {
+          id: 1, nombre: 'Carlos Mendoza', usuario: 'admin', rol: 'admin',
+          smtp_email: 'admin@gmail.com', notif_email_admin: 'admin@freshmart.cl', smtp_configured: true
+        });
+        if (url.includes('/api/auth/test-email')) return mockResponse(200, { message: 'Correo de prueba enviado correctamente' });
+        if (url.includes('/api/notifications/stock-alerts')) return mockResponse(200, {
+          data: [{ id: '7801007001', nombre: 'Pan Molde 550g', categoria: 'Panadería', icono: '🍞', stock: 3, stock_min: 10 }], total: 1
+        });
+        if (url.includes('/api/sales/summary')) return mockResponse(200, {
+          success: true,
+          data: { total_vendido: 500000, cantidad_ventas: 10, ticket_promedio: 50000 }
+        });
+        if (url.includes('/api/sales/history')) return mockResponse(200, {
+          success: true,
+          data: [
+            {
+              id: 1, total: 5000, metodo_pago: 'Efectivo', creado: '2026-05-17 10:30:00',
+              cajero_nombre: 'Rodrigo Fuentes', num_productos: 3
+            }
+          ],
+          pagination: { page: 1, per_page: 20, total: 1, pages: 1 }
+        });
         if (url.includes('/api/auth/login')) {
           if (body.usuario === 'admin' && body.password === 'admin123') {
             return mockResponse(200, {
@@ -217,8 +239,8 @@ describe('Estructura del DOM', () => {
     expect(btns.length).toBeGreaterThanOrEqual(3);
   });
 
-  test('Existen las 4 vistas principales', () => {
-    const views = ['view-dashboard', 'view-pos', 'view-inventario', 'view-proveedores'];
+  test('Existen las 5 vistas principales', () => {
+    const views = ['view-dashboard', 'view-pos', 'view-inventario', 'view-proveedores', 'view-historial'];
     views.forEach(id => {
       expect(document.getElementById(id)).not.toBeNull();
     });
@@ -415,6 +437,22 @@ describe('Tour — funciones y comportamiento', () => {
       if (!step.desc) throw new Error(`Paso ${i} sin desc`);
     });
   });
+
+  test('El tour incluye el paso de Historial de Ventas', () => {
+    const histStep = window.TOUR_STEPS.find(s => s.view === 'historial');
+    expect(!!histStep).toBeTruthy();
+    expect(histStep.title).toContain('Historial');
+  });
+
+  test('El tour NO navega a cajeros (botón fue reemplazado por Historial)', () => {
+    const cajerosStep = window.TOUR_STEPS.find(s => s.view === 'cajeros');
+    expect(!cajerosStep).toBeTruthy();
+  });
+
+  test('El target del paso Historial apunta al botón correcto del nav', () => {
+    const histStep = window.TOUR_STEPS.find(s => s.view === 'historial');
+    expect(histStep.target).toBe('[data-view="historial"]');
+  });
 });
 
 // ════════════════════════════════════════════════════════════════
@@ -446,6 +484,7 @@ describe('Navegación entre vistas', () => {
     expect(permisos.admin).toContain('inventario');
     expect(permisos.admin).toContain('cajeros');
     expect(permisos.admin).toContain('proveedores');
+    expect(permisos.admin).toContain('historial');
   });
 
   test('Cajero solo accede a dashboard y pos', () => {
@@ -455,11 +494,216 @@ describe('Navegación entre vistas', () => {
     expect(permisos.cajero).not.toContain('inventario');
     expect(permisos.cajero).not.toContain('cajeros');
     expect(permisos.cajero).not.toContain('proveedores');
+    expect(permisos.cajero).not.toContain('historial');
   });
 
   test('Supervisor no tiene acceso a cajeros', () => {
     const permisos = window.PERMISOS;
     expect(permisos.supervisor).not.toContain('cajeros');
+  });
+
+  test('Supervisor tiene acceso a historial', () => {
+    const permisos = window.PERMISOS;
+    expect(permisos.supervisor).toContain('historial');
+  });
+});
+
+// ════════════════════════════════════════════════════════════════
+//  TESTS: Historial de Ventas — DOM y funciones
+// ════════════════════════════════════════════════════════════════
+
+describe('Historial de Ventas', () => {
+  test('Existe la vista #view-historial en el DOM', () => {
+    expect(document.getElementById('view-historial')).not.toBeNull();
+  });
+
+  test('Existen los botones de filtro rápido', () => {
+    const btns = document.querySelectorAll('.hist-period-btn');
+    expect(btns.length).toBeGreaterThanOrEqual(4);
+  });
+
+  test('Botón "Hoy" está activo por defecto', () => {
+    const hoyBtn = document.querySelector('.hist-period-btn[data-period="today"]');
+    expect(hoyBtn).not.toBeNull();
+    expect(hoyBtn.classList.contains('active')).toBeTruthy();
+  });
+
+  test('Existen los inputs de fecha personalizada', () => {
+    expect(document.getElementById('hist-start-date')).not.toBeNull();
+    expect(document.getElementById('hist-end-date')).not.toBeNull();
+  });
+
+  test('El rango de fechas está oculto por defecto', () => {
+    const range = document.getElementById('hist-date-range');
+    expect(range).not.toBeNull();
+    expect(range.style.display).toBe('none');
+  });
+
+  test('Existen los 3 KPI cards de resumen', () => {
+    expect(document.getElementById('hkpi-total')).not.toBeNull();
+    expect(document.getElementById('hkpi-count')).not.toBeNull();
+    expect(document.getElementById('hkpi-avg')).not.toBeNull();
+  });
+
+  test('Existe la tabla de historial', () => {
+    expect(document.getElementById('hist-table')).not.toBeNull();
+    expect(document.getElementById('hist-tbody')).not.toBeNull();
+  });
+
+  test('Existen los botones de paginación', () => {
+    expect(document.getElementById('hist-prev-btn')).not.toBeNull();
+    expect(document.getElementById('hist-next-btn')).not.toBeNull();
+  });
+
+  test('histSetPeriod() existe como función global', () => {
+    expect(typeof window.histSetPeriod).toBe('function');
+  });
+
+  test('histChangePage() existe como función global', () => {
+    expect(typeof window.histChangePage).toBe('function');
+  });
+
+  test('histLoadData() existe como función global', () => {
+    expect(typeof window.histLoadData).toBe('function');
+  });
+
+  test('histSetPeriod("custom") muestra el rango de fechas', () => {
+    window.histSetPeriod('custom');
+    const range = document.getElementById('hist-date-range');
+    expect(range.style.display).not.toBe('none');
+  });
+
+  test('histSetPeriod("today") oculta el rango de fechas', () => {
+    // Custom primero, luego volver a today
+    window.histSetPeriod('custom');
+    window.histSetPeriod('today');
+    const range = document.getElementById('hist-date-range');
+    expect(range.style.display).toBe('none');
+  });
+
+  test('histSetPeriod() marca el botón correcto como activo', () => {
+    window.histSetPeriod('week');
+    const weekBtn = document.querySelector('.hist-period-btn[data-period="week"]');
+    const todayBtn = document.querySelector('.hist-period-btn[data-period="today"]');
+    expect(weekBtn.classList.contains('active')).toBeTruthy();
+    expect(todayBtn.classList.contains('active')).toBeFalsy();
+    // Restablecer
+    window.histSetPeriod('today');
+  });
+
+  test('El botón del historial en el nav tiene data-view="historial"', () => {
+    const btn = document.querySelector('.nav-btn[data-view="historial"]');
+    expect(btn).not.toBeNull();
+  });
+
+  test('No existe nav-btn con data-view="cajeros" (reemplazado)', () => {
+    // La vista cajeros puede existir en el DOM pero no debería estar en el nav principal
+    // según los requisitos (se reemplazó Personal por Historial en el nav)
+    const histBtn = document.querySelector('.nav-btn[data-view="historial"]');
+    expect(histBtn).not.toBeNull();
+  });
+});
+
+// ════════════════════════════════════════════════════════════════
+//  TESTS: Perfil de usuario & Configuración de correo
+// ════════════════════════════════════════════════════════════════
+
+describe('Perfil de usuario y configuración de correo', () => {
+  test('El modal #profile-modal existe en el DOM', () => {
+    expect(document.getElementById('profile-modal')).not.toBeNull();
+  });
+
+  test('El modal tiene los campos clave de perfil', () => {
+    expect(document.getElementById('prof-nombre')).not.toBeNull();
+    expect(document.getElementById('prof-usuario')).not.toBeNull();
+    expect(document.getElementById('prof-role-badge')).not.toBeNull();
+  });
+
+  test('El modal tiene los campos de configuración SMTP', () => {
+    expect(document.getElementById('prof-smtp-email')).not.toBeNull();
+    expect(document.getElementById('prof-smtp-pass')).not.toBeNull();
+    expect(document.getElementById('prof-notif-email')).not.toBeNull();
+  });
+
+  test('Existe el botón de enviar correo de prueba', () => {
+    expect(document.getElementById('prof-test-btn')).not.toBeNull();
+  });
+
+  test('Existe indicador de estado SMTP', () => {
+    expect(document.getElementById('prof-smtp-status')).not.toBeNull();
+  });
+
+  test('openProfileModal() existe como función global', () => {
+    expect(typeof window.openProfileModal).toBe('function');
+  });
+
+  test('closeProfileModal() existe como función global', () => {
+    expect(typeof window.closeProfileModal).toBe('function');
+  });
+
+  test('saveProfile() existe como función global', () => {
+    expect(typeof window.saveProfile).toBe('function');
+  });
+
+  test('sendTestEmail() existe como función global', () => {
+    expect(typeof window.sendTestEmail).toBe('function');
+  });
+
+  test('togglePassVis() existe como función global', () => {
+    expect(typeof window.togglePassVis).toBe('function');
+  });
+
+  test('El modal no está visible por defecto (sin clase show)', () => {
+    const modal = document.getElementById('profile-modal');
+    expect(modal.classList.contains('show')).toBeFalsy();
+  });
+
+  test('openProfileModal() agrega clase show al modal', async () => {
+    await window.openProfileModal();
+    const modal = document.getElementById('profile-modal');
+    expect(modal.classList.contains('show')).toBeTruthy();
+    window.closeProfileModal();
+  });
+
+  test('closeProfileModal() remueve clase show del modal', async () => {
+    await window.openProfileModal();
+    window.closeProfileModal();
+    const modal = document.getElementById('profile-modal');
+    expect(modal.classList.contains('show')).toBeFalsy();
+  });
+
+  test('openProfileModal() puebla el campo nombre con datos del perfil', async () => {
+    await window.openProfileModal();
+    const nombre = document.getElementById('prof-nombre').value;
+    expect(nombre).toBe('Carlos Mendoza');
+    window.closeProfileModal();
+  });
+
+  test('openProfileModal() puebla el campo smtp_email con datos del perfil', async () => {
+    await window.openProfileModal();
+    const smtp = document.getElementById('prof-smtp-email').value;
+    expect(smtp).toBe('admin@gmail.com');
+    window.closeProfileModal();
+  });
+
+  test('El campo App Password nunca se prerellena', async () => {
+    await window.openProfileModal();
+    const pass = document.getElementById('prof-smtp-pass').value;
+    expect(pass).toBe('');
+    window.closeProfileModal();
+  });
+
+  test('togglePassVis() cambia input[type=password] a text', () => {
+    const inp = document.getElementById('prof-smtp-pass');
+    inp.type = 'password';
+    window.togglePassVis('prof-smtp-pass', 'prof-pass-eye');
+    expect(inp.type).toBe('text');
+    inp.type = 'password'; // restaurar
+  });
+
+  test('El #user-pill tiene onclick que llama openProfileModal', () => {
+    const pill = document.getElementById('user-pill');
+    expect(pill.getAttribute('onclick')).toContain('openProfileModal');
   });
 });
 

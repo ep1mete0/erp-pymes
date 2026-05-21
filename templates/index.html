@@ -2448,6 +2448,305 @@
       padding: 36px 0
     }
 
+    /* ─── PERFIL MODAL ─── */
+    .prof-section {
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border)
+    }
+
+    .prof-section:last-of-type {
+      border-bottom: none
+    }
+
+    .prof-section-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text3);
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      margin-bottom: 12px
+    }
+
+    .prof-role-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 99px;
+      font-size: 11px;
+      font-weight: 700;
+      background: var(--primary-l);
+      color: var(--primary)
+    }
+
+    .prof-info-box {
+      background: var(--blue-l);
+      border: 1px solid #bfdbfe;
+      border-radius: var(--radius-sm);
+      padding: 11px 14px;
+      font-size: 12px;
+      color: var(--blue);
+      margin-bottom: 14px;
+      line-height: 1.5
+    }
+
+    .prof-test-btn {
+      width: 100%;
+      padding: 9px 0;
+      border: 1.5px dashed var(--primary);
+      border-radius: var(--radius-sm);
+      background: var(--primary-xl, var(--primary-l));
+      color: var(--primary);
+      font-size: 13px;
+      font-weight: 700;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all .15s
+    }
+
+    .prof-test-btn:hover:not(:disabled) {
+      background: var(--primary);
+      color: #fff;
+      border-style: solid
+    }
+
+    .prof-test-btn:disabled {
+      opacity: .6;
+      cursor: not-allowed
+    }
+
+    /* ─── HISTORIAL DE VENTAS ─── */
+    #view-historial {
+      background: var(--bg);
+      display: none;
+      flex-direction: column;
+      overflow: hidden
+    }
+
+    #view-historial.active {
+      display: flex
+    }
+
+    #hist-kpi-row {
+      display: flex;
+      gap: 14px;
+      padding: 14px 24px;
+      flex-shrink: 0
+    }
+
+    .hist-kpi-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1
+    }
+
+    .hist-kpi-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0
+    }
+
+    .hist-icon-green {
+      background: var(--primary-l);
+      color: var(--primary)
+    }
+
+    .hist-icon-blue {
+      background: var(--blue-l);
+      color: var(--blue)
+    }
+
+    .hist-icon-purple {
+      background: var(--purple-l);
+      color: var(--purple)
+    }
+
+    .hist-kpi-label {
+      font-size: 12px;
+      color: var(--text3);
+      font-weight: 500
+    }
+
+    .hist-kpi-value {
+      font-family: 'Nunito', sans-serif;
+      font-size: 22px;
+      font-weight: 900;
+      color: var(--text);
+      line-height: 1.1
+    }
+
+    #hist-filters {
+      padding: 0 24px 12px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-shrink: 0;
+      flex-wrap: wrap
+    }
+
+    #hist-period-btns {
+      display: flex;
+      gap: 4px;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 3px
+    }
+
+    .hist-period-btn {
+      padding: 6px 14px;
+      border: none;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      color: var(--text3);
+      background: transparent;
+      transition: all .15s
+    }
+
+    .hist-period-btn:hover {
+      color: var(--text);
+      background: var(--bg)
+    }
+
+    .hist-period-btn.active {
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 2px 6px rgba(22, 163, 74, .25)
+    }
+
+    #hist-date-range {
+      display: flex;
+      gap: 10px;
+      align-items: center
+    }
+
+    .hist-date-group {
+      display: flex;
+      align-items: center;
+      gap: 6px
+    }
+
+    .hist-date-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text3);
+      white-space: nowrap
+    }
+
+    .hist-date-input {
+      padding: 7px 10px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-family: 'Inter', sans-serif;
+      color: var(--text);
+      outline: none;
+      background: var(--white);
+      transition: border-color .15s
+    }
+
+    .hist-date-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(22, 163, 74, .1)
+    }
+
+    #hist-table-wrap {
+      flex: 1;
+      overflow-y: auto;
+      margin: 0 24px;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm)
+    }
+
+    #hist-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px
+    }
+
+    #hist-table thead tr {
+      background: var(--bg);
+      border-bottom: 2px solid var(--border)
+    }
+
+    #hist-table th {
+      padding: 10px 14px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text3);
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      white-space: nowrap
+    }
+
+    #hist-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text2);
+      vertical-align: middle
+    }
+
+    #hist-table tbody tr:last-child td {
+      border-bottom: none
+    }
+
+    #hist-table tbody tr:hover td {
+      background: var(--bg)
+    }
+
+    .hist-pay-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 9px;
+      border-radius: 99px;
+      font-size: 11px;
+      font-weight: 700
+    }
+
+    .hist-pay-efectivo {
+      background: var(--primary-l);
+      color: var(--primary)
+    }
+
+    .hist-pay-tarjeta {
+      background: var(--blue-l);
+      color: var(--blue)
+    }
+
+    .hist-pay-transferencia {
+      background: var(--purple-l);
+      color: var(--purple)
+    }
+
+    #hist-pagination {
+      padding: 10px 24px;
+      border-top: 1px solid var(--border);
+      background: var(--white);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0
+    }
+
     /* ─── MODALS ─── */
     .modal-overlay {
       display: none;
@@ -3260,16 +3559,13 @@
               <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
               <line x1="12" y1="22.08" x2="12" y2="12" />
             </svg></span> Inventario</button>
-        <button class="nav-btn" data-view="cajeros" onclick="switchView('cajeros')"><span class="nav-icon"><svg
+        <button class="nav-btn" data-view="historial" onclick="switchView('historial')"><span class="nav-icon"><svg
               width="18px" height="18px" style="color:currentColor;vertical-align:middle;flex-shrink:0"
               viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
               stroke-linejoin="round">
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-              <circle cx="9" cy="7" r="4" />
-              <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
             </svg></span>
-          Personal</button>
+          Historial</button>
         <button class="nav-btn" data-view="proveedores" onclick="switchView('proveedores')"><span class="nav-icon"><svg
               width="18px" height="18px" style="color:currentColor;vertical-align:middle;flex-shrink:0"
               viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -3282,7 +3578,7 @@
       </nav>
       <div id="top-right">
         <div id="top-clock"></div>
-        <div id="user-pill">
+        <div id="user-pill" onclick="openProfileModal()" title="Ver perfil" style="cursor:pointer">
           <div class="user-avatar" id="up-avatar"></div>
           <div>
             <div id="user-name"></div>
@@ -3734,6 +4030,217 @@
     </div>
   </div>
 
+  <!-- ══ HISTORIAL DE VENTAS ══ -->
+  <div class="view" id="view-historial">
+    <div class="page-hdr">
+      <div>
+        <div class="page-title">Historial de Ventas</div>
+        <div class="page-sub">Consulta y análisis de ventas</div>
+      </div>
+    </div>
+
+    <!-- KPI Summary Cards -->
+    <div id="hist-kpi-row">
+      <div class="hist-kpi-card">
+        <div class="hist-kpi-icon hist-icon-green">
+          <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="1" x2="12" y2="23" />
+            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+          </svg>
+        </div>
+        <div>
+          <div class="hist-kpi-label">Total vendido</div>
+          <div class="hist-kpi-value" id="hkpi-total">—</div>
+        </div>
+      </div>
+      <div class="hist-kpi-card">
+        <div class="hist-kpi-icon hist-icon-blue">
+          <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="9" cy="21" r="1" />
+            <circle cx="20" cy="21" r="1" />
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+          </svg>
+        </div>
+        <div>
+          <div class="hist-kpi-label">Cantidad de ventas</div>
+          <div class="hist-kpi-value" id="hkpi-count">—</div>
+        </div>
+      </div>
+      <div class="hist-kpi-card">
+        <div class="hist-kpi-icon hist-icon-purple">
+          <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="20" x2="18" y2="10" />
+            <line x1="12" y1="20" x2="12" y2="4" />
+            <line x1="6" y1="20" x2="6" y2="14" />
+          </svg>
+        </div>
+        <div>
+          <div class="hist-kpi-label">Ticket promedio</div>
+          <div class="hist-kpi-value" id="hkpi-avg">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div id="hist-filters">
+      <div id="hist-period-btns">
+        <button class="hist-period-btn active" data-period="today" onclick="histSetPeriod('today')">Hoy</button>
+        <button class="hist-period-btn" data-period="week" onclick="histSetPeriod('week')">Esta semana</button>
+        <button class="hist-period-btn" data-period="month" onclick="histSetPeriod('month')">Este mes</button>
+        <button class="hist-period-btn" data-period="custom" onclick="histSetPeriod('custom')">Personalizado</button>
+      </div>
+      <div id="hist-date-range" style="display:none">
+        <div class="hist-date-group">
+          <label class="hist-date-label">Desde</label>
+          <input type="date" class="hist-date-input" id="hist-start-date" onchange="histLoadData()">
+        </div>
+        <div class="hist-date-group">
+          <label class="hist-date-label">Hasta</label>
+          <input type="date" class="hist-date-input" id="hist-end-date" onchange="histLoadData()">
+        </div>
+      </div>
+    </div>
+
+    <!-- Table area -->
+    <div id="hist-table-wrap">
+      <table id="hist-table">
+        <thead>
+          <tr>
+            <th># Venta</th>
+            <th>Fecha</th>
+            <th>Hora</th>
+            <th>Cajero</th>
+            <th>Productos</th>
+            <th>Método de pago</th>
+            <th style="text-align:right">Total</th>
+          </tr>
+        </thead>
+        <tbody id="hist-tbody">
+          <tr>
+            <td colspan="7" class="loading-row">
+              <div class="spinner"></div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div id="hist-empty" style="display:none">
+        <div class="empty-state" style="padding:60px 0">
+          <div style="font-size:32px;margin-bottom:8px">📋</div>
+          <div>No hay ventas en el período seleccionado</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div id="hist-pagination">
+      <span id="hist-page-info" style="font-size:13px;color:var(--text3)"></span>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-ghost btn-sm" id="hist-prev-btn" onclick="histChangePage(-1)" disabled>←
+          Anterior</button>
+        <button class="btn btn-ghost btn-sm" id="hist-next-btn" onclick="histChangePage(1)" disabled>Siguiente
+          →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PERFIL / CONFIGURACIÓN DE CORREO MODAL ══ -->
+  <div class="modal-overlay" id="profile-modal">
+    <div class="modal-box" style="width:480px;max-height:90vh;overflow-y:auto">
+      <div class="modal-title">
+        <svg width="18px" height="18px" style="vertical-align:middle;margin-right:8px;color:var(--primary)"
+          viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+          stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+          <circle cx="12" cy="7" r="4" />
+        </svg>
+        Mi Perfil
+      </div>
+
+      <!-- ── Sección: Datos personales ── -->
+      <div class="prof-section">
+        <div class="prof-section-title">Datos personales</div>
+        <div class="form-group" style="margin-bottom:12px">
+          <label class="form-label">Nombre completo</label>
+          <input class="form-input" id="prof-nombre" placeholder="Tu nombre">
+        </div>
+        <div class="form-group" style="margin-bottom:4px">
+          <label class="form-label">Usuario</label>
+          <input class="form-input" id="prof-usuario" disabled style="background:var(--bg);color:var(--text3)">
+        </div>
+        <div style="margin-bottom:4px">
+          <span class="prof-role-badge" id="prof-role-badge"></span>
+        </div>
+      </div>
+
+      <!-- ── Sección: Notificaciones de correo (solo admin) ── -->
+      <div class="prof-section" id="prof-email-section">
+        <div class="prof-section-title">
+          <svg width="14px" height="14px" style="vertical-align:middle;margin-right:6px" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+            <polyline points="22,6 12,13 2,6" />
+          </svg>
+          Notificaciones de stock por correo
+        </div>
+        <div class="prof-info-box">
+          Cuando un producto alcanza su stock mínimo tras una venta, el sistema enviará automáticamente un correo de
+          alerta al administrador. Necesitas una <strong>App Password</strong> de Google (no tu contraseña normal).
+        </div>
+        <div class="form-group" style="margin-bottom:12px">
+          <label class="form-label">Correo Gmail que envía (remitente)</label>
+          <input class="form-input" id="prof-smtp-email" type="email" placeholder="tu@gmail.com" autocomplete="off">
+        </div>
+        <div class="form-group" style="margin-bottom:12px">
+          <label class="form-label">App Password de Google</label>
+          <div style="position:relative">
+            <input class="form-input" id="prof-smtp-pass" type="password" placeholder="xxxx xxxx xxxx xxxx"
+              autocomplete="new-password" style="padding-right:44px">
+            <button onclick="togglePassVis('prof-smtp-pass','prof-pass-eye')"
+              style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text3);padding:4px"
+              title="Mostrar/ocultar">
+              <svg id="prof-pass-eye" width="16px" height="16px" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+            </button>
+          </div>
+          <div id="prof-smtp-status" style="margin-top:6px;font-size:12px"></div>
+        </div>
+        <div class="form-group" style="margin-bottom:12px">
+          <label class="form-label">Correo destino de alertas (administrador)</label>
+          <input class="form-input" id="prof-notif-email" type="email" placeholder="admin@freshmart.cl">
+        </div>
+        <button class="prof-test-btn" id="prof-test-btn" onclick="sendTestEmail()">
+          <svg width="14px" height="14px" style="vertical-align:middle;margin-right:6px;flex-shrink:0"
+            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13" />
+            <polygon points="22 2 15 22 11 13 2 9 22 2" />
+          </svg>
+          Enviar correo de prueba
+        </button>
+      </div>
+
+      <div class="modal-actions">
+        <button class="modal-cancel" onclick="closeProfileModal()">Cancelar</button>
+        <button class="modal-save" onclick="saveProfile()">
+          <svg width="15px" height="15px" style="color:currentColor;vertical-align:middle;flex-shrink:0"
+            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round">
+            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+            <polyline points="17 21 17 13 7 13 7 21" />
+            <polyline points="7 3 7 8 15 8" />
+          </svg>
+          Guardar cambios
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- ══ INVENTARIO MODAL ══ -->
   <div class="modal-overlay" id="inv-modal">
     <div class="modal-box">
@@ -3962,8 +4469,8 @@
     let authToken = localStorage.getItem('fm_token') || '';
 
     const PERMISOS = {
-      admin: ['dashboard', 'pos', 'inventario', 'cajeros', 'proveedores'],
-      supervisor: ['dashboard', 'pos', 'inventario', 'proveedores'],
+      admin: ['dashboard', 'pos', 'inventario', 'cajeros', 'historial', 'proveedores'],
+      supervisor: ['dashboard', 'pos', 'inventario', 'historial', 'proveedores'],
       cajero: ['dashboard', 'pos'],
     };
 
@@ -4118,6 +4625,7 @@
       if (v === 'pos') loadPOS();
       if (v === 'cajeros') loadCajeros();
       if (v === 'proveedores') loadProveedores();
+      if (v === 'historial') histLoadData();
     }
 
     // ══════════════════════════════════════════════════════
@@ -4975,6 +5483,226 @@
     function verifyPM() { closePinOverlay(); }
 
     // ══════════════════════════════════════════════════════
+    //  HISTORIAL DE VENTAS
+    // ══════════════════════════════════════════════════════
+    let histPeriod = 'today';
+    let histPage = 1;
+    const HIST_PER_PAGE = 20;
+
+    function histSetPeriod(period) {
+      histPeriod = period;
+      histPage = 1;
+      document.querySelectorAll('.hist-period-btn').forEach(btn =>
+        btn.classList.toggle('active', btn.dataset.period === period)
+      );
+      const dateRange = document.getElementById('hist-date-range');
+      if (period === 'custom') {
+        dateRange.style.display = 'flex';
+      } else {
+        dateRange.style.display = 'none';
+        histLoadData();
+      }
+    }
+    window.histSetPeriod = histSetPeriod;
+
+    function histChangePage(delta) {
+      histPage += delta;
+      histLoadData();
+    }
+    window.histChangePage = histChangePage;
+
+    async function histLoadData() {
+      const tbody = document.getElementById('hist-tbody');
+      const emptyEl = document.getElementById('hist-empty');
+      tbody.innerHTML = '<tr><td colspan="7" class="loading-row"><div class="spinner"></div></td></tr>';
+      emptyEl.style.display = 'none';
+      document.getElementById('hist-table').style.display = '';
+      document.getElementById('hist-prev-btn').disabled = true;
+      document.getElementById('hist-next-btn').disabled = true;
+
+      // Build query params
+      let params = `page=${histPage}&per_page=${HIST_PER_PAGE}`;
+      if (histPeriod !== 'custom') {
+        params += `&period=${histPeriod}`;
+      } else {
+        const s = document.getElementById('hist-start-date').value;
+        const e = document.getElementById('hist-end-date').value;
+        if (s) params += `&start_date=${s}`;
+        if (e) params += `&end_date=${e}`;
+      }
+
+      try {
+        const [histRes, summaryRes] = await Promise.all([
+          api('GET', `/sales/history?${params}`),
+          api('GET', `/sales/summary?${params.replace(/page=\d+&per_page=\d+&?/, '')}`)
+        ]);
+
+        // Update KPIs
+        document.getElementById('hkpi-total').textContent = fmt(summaryRes.data.total_vendido);
+        document.getElementById('hkpi-count').textContent = summaryRes.data.cantidad_ventas;
+        document.getElementById('hkpi-avg').textContent = summaryRes.data.cantidad_ventas > 0
+          ? fmt(summaryRes.data.ticket_promedio) : '$0';
+
+        const ventas = histRes.data;
+        const { page, pages, total } = histRes.pagination;
+
+        if (ventas.length === 0) {
+          tbody.innerHTML = '';
+          document.getElementById('hist-table').style.display = 'none';
+          emptyEl.style.display = '';
+        } else {
+          tbody.innerHTML = ventas.map(v => {
+            const dt = new Date(v.creado);
+            const fecha = dt.toLocaleDateString('es-CL', { day: '2-digit', month: '2-digit', year: 'numeric' });
+            const hora = dt.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
+            const payClass = v.metodo_pago === 'Efectivo' ? 'hist-pay-efectivo'
+              : v.metodo_pago === 'Tarjeta' ? 'hist-pay-tarjeta' : 'hist-pay-transferencia';
+            return `<tr>
+              <td><span style="font-family:'Nunito',sans-serif;font-weight:800;color:var(--text)">#${v.id}</span></td>
+              <td>${fecha}</td>
+              <td style="color:var(--text3)">${hora}</td>
+              <td>${v.cajero_nombre}</td>
+              <td style="text-align:center">
+                <span style="background:var(--bg);padding:2px 9px;border-radius:99px;font-size:12px;font-weight:700">${v.num_productos}</span>
+              </td>
+              <td><span class="hist-pay-badge ${payClass}">${v.metodo_pago}</span></td>
+              <td style="text-align:right;font-family:'Nunito',sans-serif;font-weight:800;color:var(--primary)">${fmt(v.total)}</td>
+            </tr>`;
+          }).join('');
+
+          // Pagination info
+          const from = (page - 1) * HIST_PER_PAGE + 1;
+          const to = Math.min(page * HIST_PER_PAGE, total);
+          document.getElementById('hist-page-info').textContent = `Mostrando ${from}–${to} de ${total} ventas`;
+          document.getElementById('hist-prev-btn').disabled = page <= 1;
+          document.getElementById('hist-next-btn').disabled = page >= pages;
+          histPage = page;
+        }
+      } catch (e) {
+        tbody.innerHTML = `<tr><td colspan="7" class="empty-state">Error al cargar datos: ${e.message}</td></tr>`;
+        showToast('Error al cargar historial', 'error');
+      }
+    }
+    window.histLoadData = histLoadData;
+
+    // ══════════════════════════════════════════════════════
+    //  PERFIL DE USUARIO & CONFIGURACIÓN DE CORREO
+    // ══════════════════════════════════════════════════════
+
+    function togglePassVis(inputId, iconId) {
+      const inp = document.getElementById(inputId);
+      inp.type = inp.type === 'password' ? 'text' : 'password';
+    }
+    window.togglePassVis = togglePassVis;
+
+    async function openProfileModal() {
+      try {
+        const profile = await api('GET', '/auth/profile');
+
+        document.getElementById('prof-nombre').value = profile.nombre || '';
+        document.getElementById('prof-usuario').value = profile.usuario || '';
+
+        const badge = document.getElementById('prof-role-badge');
+        badge.textContent = rolLabel(profile.rol);
+        badge.className = `prof-role-badge ${badgeClass(profile.rol)}`;
+
+        // Sección email solo para admin
+        const emailSection = document.getElementById('prof-email-section');
+        if (profile.rol === 'admin') {
+          emailSection.style.display = '';
+          document.getElementById('prof-smtp-email').value = profile.smtp_email || '';
+          document.getElementById('prof-smtp-pass').value = '';  // nunca prerellenar password
+          document.getElementById('prof-notif-email').value = profile.notif_email_admin || '';
+          const statusEl = document.getElementById('prof-smtp-status');
+          if (profile.smtp_configured) {
+            statusEl.innerHTML = '<span style="color:var(--primary)">✓ App Password configurada</span>';
+          } else {
+            statusEl.innerHTML = '<span style="color:var(--text3)">Sin App Password configurada</span>';
+          }
+        } else {
+          emailSection.style.display = 'none';
+        }
+
+        document.getElementById('profile-modal').classList.add('show');
+      } catch (e) {
+        showToast('Error al cargar perfil: ' + e.message, 'error');
+      }
+    }
+    window.openProfileModal = openProfileModal;
+
+    function closeProfileModal() {
+      document.getElementById('profile-modal').classList.remove('show');
+    }
+    window.closeProfileModal = closeProfileModal;
+
+    async function saveProfile() {
+      const nombre = document.getElementById('prof-nombre').value.trim();
+      if (!nombre) { showToast('El nombre no puede estar vacío', 'error'); return; }
+
+      const body = { nombre };
+
+      if (currentUser.rol === 'admin') {
+        const smtpEmail = document.getElementById('prof-smtp-email').value.trim();
+        const smtpPass = document.getElementById('prof-smtp-pass').value.trim();
+        const notifEmail = document.getElementById('prof-notif-email').value.trim();
+        if (smtpEmail) body.smtp_email = smtpEmail;
+        if (smtpPass) body.smtp_app_password = smtpPass;
+        if (notifEmail) body.notif_email_admin = notifEmail;
+      }
+
+      try {
+        await api('PATCH', '/auth/profile', body);
+        // Actualizar nombre en topbar sin relogin
+        currentUser.nombre = nombre;
+        document.getElementById('user-name').textContent = nombre;
+        document.getElementById('up-avatar').textContent = initials(nombre);
+        closeProfileModal();
+        showToast('Perfil actualizado correctamente');
+      } catch (e) {
+        showToast('Error al guardar: ' + e.message, 'error');
+      }
+    }
+    window.saveProfile = saveProfile;
+
+    async function sendTestEmail() {
+      const smtpEmail = document.getElementById('prof-smtp-email').value.trim();
+      const smtpPass = document.getElementById('prof-smtp-pass').value.trim();
+      const notifEmail = document.getElementById('prof-notif-email').value.trim();
+
+      if (!smtpEmail || !smtpPass || !notifEmail) {
+        showToast('Completa el correo Gmail, App Password y correo destino antes de probar', 'error');
+        return;
+      }
+
+      const btn = document.getElementById('prof-test-btn');
+      btn.disabled = true;
+      btn.innerHTML = `<svg width="14px" height="14px" style="vertical-align:middle;margin-right:6px;animation:spin 1s linear infinite" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-dasharray="32" stroke-dashoffset="10"/></svg> Enviando...`;
+
+      try {
+        await api('POST', '/auth/test-email', {
+          smtp_email: smtpEmail,
+          smtp_app_password: smtpPass,
+          notif_email_admin: notifEmail
+        });
+        showToast('✅ Correo de prueba enviado a ' + notifEmail);
+        // Actualizar badge de estado
+        document.getElementById('prof-smtp-status').innerHTML =
+          '<span style="color:var(--primary)">✓ App Password verificada correctamente</span>';
+      } catch (e) {
+        showToast('Error: ' + e.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<svg width="14px" height="14px" style="vertical-align:middle;margin-right:6px;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Enviar correo de prueba`;
+      }
+    }
+    window.sendTestEmail = sendTestEmail;
+
+    // Cerrar modal de perfil al click en overlay
+    document.getElementById('profile-modal').addEventListener('click', function (e) {
+      if (e.target === this) closeProfileModal();
+    });
+
+    // ══════════════════════════════════════════════════════
     //  TOUR GUIADO — Sistema de visita guiada
     // ══════════════════════════════════════════════════════
     const TOUR_STEPS = [
@@ -5019,12 +5747,12 @@
         view: 'inventario'
       },
       {
-        target: '[data-view="cajeros"]',
-        icon: `<svg width="22px" height="22px" style="color:var(--purple);vertical-align:middle;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
-        title: 'Gestión de Personal',
-        desc: 'La sección de <strong>Personal</strong> te permite administrar cajeros y supervisores: ver sus turnos activos, horarios de entrada y salida, y el estado de cada empleado.',
+        target: '[data-view="historial"]',
+        icon: `<svg width="22px" height="22px" style="color:var(--purple);vertical-align:middle;flex-shrink:0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>`,
+        title: 'Historial de Ventas',
+        desc: 'El <strong>Historial de Ventas</strong> te permite consultar y analizar todas las transacciones del negocio. Filtra por día, semana, mes o rango personalizado, y revisa totales, ticket promedio y detalle de cada venta.',
         position: 'bottom',
-        view: 'cajeros'
+        view: 'historial'
       },
       {
         target: '[data-view="proveedores"]',
