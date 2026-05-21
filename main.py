@@ -23,8 +23,7 @@ from datetime import datetime, timedelta, date
 from contextlib import contextmanager
 
 # ─── CONFIG ──────────────────────────────────────────────────────
-SECRET_KEY = os.getenv(
-    "FRESHMART_SECRET", "freshmart-secret-key-2026-!change-in-prod")
+SECRET_KEY = os.getenv("FRESHMART_SECRET", "")
 ALGORITHM = "HS256"
 TOKEN_EXP = 60 * 12  # 12 horas en minutos
 DB_PATH = "database.db"
