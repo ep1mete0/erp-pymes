@@ -1053,7 +1053,15 @@
       flex-direction: column;
       align-items: center;
       text-align: center;
-      gap: 4px
+      gap: 4px;
+      -webkit-user-select: none;
+      /* Safari, Chrome */
+      -moz-user-select: none;
+      /* Firefox */
+      -ms-user-select: none;
+      /* IE 10+ */
+      user-select: none;
+      /* Standard syntax */
     }
 
     .prod-card:hover {
@@ -4535,6 +4543,70 @@
     }
 
     // ══════════════════════════════════════════════════════
+    //  SONIDOS POS
+    // ══════════════════════════════════════════════════════
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    let _actx = null;
+
+    function getAudioCtx() {
+      if (!_actx) _actx = new AudioCtx();
+      return _actx;
+    }
+
+    function playBeep({ freq = 880, type = 'sine', duration = 0.08, volume = 0.3, decay = 0.05 } = {}) {
+      try {
+        const ctx = getAudioCtx();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, ctx.currentTime);
+        gain.gain.setValueAtTime(volume, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration + decay);
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + duration + decay);
+      } catch (e) { }
+    }
+
+    // Sonido al AGREGAR producto (doble beep agudo)
+    function soundAdd() {
+      playBeep({ freq: 880, duration: 0.07, volume: 0.25 });
+      setTimeout(() => playBeep({ freq: 1100, duration: 0.07, volume: 0.2 }), 80);
+    }
+
+    // Sonido al CAMBIAR cantidad (un beep suave)
+    function soundQty() {
+      playBeep({ freq: 660, type: 'sine', duration: 0.06, volume: 0.15 });
+    }
+
+    // Sonido al ELIMINAR producto (beep grave descendente)
+    function soundRemove() {
+      try {
+        const ctx = getAudioCtx();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(500, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(200, ctx.currentTime + 0.15);
+        gain.gain.setValueAtTime(0.2, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + 0.15);
+      } catch (e) { }
+    }
+
+    // Sonido al PROCESAR venta exitosa (acorde alegre)
+    function soundSale() {
+      const notas = [523, 659, 784, 1047]; // Do-Mi-Sol-Do
+      notas.forEach((freq, i) => {
+        setTimeout(() => playBeep({ freq, duration: 0.12, volume: 0.2, decay: 0.08 }), i * 80);
+      });
+    }
+
+    // ══════════════════════════════════════════════════════
     //  AUTH
     // ══════════════════════════════════════════════════════
     async function doLogin() {
@@ -4957,14 +5029,16 @@
         posCart.push({ id: p.id, name: p.nombre, icon: p.icono || '📦', price: p.precio, cost: p.costo, disc: p.descuento, qty: 1, maxStock: p.stock });
       }
       renderCart();
+      soundAdd();
     }
 
-    function removeFromCart(id) { posCart = posCart.filter(x => x.id !== id); renderCart(); }
+    function removeFromCart(id) { soundRemove(); posCart = posCart.filter(x => x.id !== id); renderCart(); }
     function changeQty(id, d) {
       const it = posCart.find(x => x.id === id);
       if (!it) return;
       it.qty = Math.max(1, Math.min(it.qty + d, it.maxStock));
       renderCart();
+      soundQty();
     }
 
     function calcTotals() {
@@ -5026,6 +5100,9 @@
       }));
       try {
         await api('POST', '/ventas', { total, metodo_pago: payMethod, items });
+
+        soundSale();
+
         // Mostrar recibo
         const cash = parseFloat(document.getElementById('cash-in').value) || 0;
         const vuelto = payMethod === 'Efectivo' && cash > total ? cash - total : 0;
