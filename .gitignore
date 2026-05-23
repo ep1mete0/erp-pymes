@@ -6,3 +6,4 @@ database.db
 .pytest_cache
 __test__frontend.js
 package-lock.json
+.env
